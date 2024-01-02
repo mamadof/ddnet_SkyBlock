@@ -13,6 +13,7 @@
 
 #define GAME_TYPE_NAME "DDraceNetwork"
 #define TEST_TYPE_NAME "TestDDraceNetwork"
+//Hello this is a test for git <3 :)
 
 CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 	IGameController(pGameServer)
