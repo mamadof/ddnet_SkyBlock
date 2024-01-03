@@ -11,8 +11,8 @@
 #include <game/server/score.h>
 #include <game/version.h>
 
-#define GAME_TYPE_NAME "DDraceNetwork"
-#define TEST_TYPE_NAME "TestDDraceNetwork"
+#define GAME_TYPE_NAME "SkyBl"
+#define TEST_TYPE_NAME "SkyBl_t"
 
 CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 	IGameController(pGameServer)
@@ -128,10 +128,13 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 	//Score Farming
 	if ((my_SwitchType == 22) && (my_SwitchNumber == 20) && my_SwitchDelay)
 	{
-		if(Server()->Tick() % ((Server()->TickSpeed()/my_SwitchDelay)*2) == 0)
+		if(Server()->Tick() % ((Server()->TickSpeed()/my_SwitchDelay)) == 0)
 			{
 				pPlayer->my_score += 1;
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+				char abuff[100];
+				str_format(abuff, sizeof(abuff), "score farmed: %d", pPlayer->my_score);
+				GameServer()->SendBroadcast(abuff, ClientID);
 			}
 	}	
 
