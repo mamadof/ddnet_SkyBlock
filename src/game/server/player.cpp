@@ -326,23 +326,42 @@ void CPlayer::Snap(int SnappingClient)
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 	int Latency = SnappingClient == SERVER_DEMO_CLIENT ? m_Latency.m_Min : GameServer()->m_apPlayers[SnappingClient]->m_aCurLatency[m_ClientID];
 
-	int Score;
-	// This is the time sent to the player while ingame (do not confuse to the one reported to the master server).
-	// Due to clients expecting this as a negative value, we have to make sure it's negative.
-	// Special numbers:
-	// -9999: means no time and isn't displayed in the scoreboard.
-	if(m_Score.has_value())
-	{
-		// shift the time by a second if the player actually took 9999
-		// seconds to finish the map.
-		if(m_Score.value() == 9999)
-			Score = -10000;
-		else
-			Score = -m_Score.value();
+	//My stuff
+	if(my_score < 0){
+		my_score = 0;
+	}else if (my_score > 696969){
+		my_score = 696969;
 	}
-	else
-	{
-		Score = -9999;
+	int Score = my_score;
+	// char abuff[100];
+	// str_format(abuff, sizeof(abuff), "feetColor:%d", pClientInfo->m_ColorFeet);
+	// m_pGameServer->SendBroadcast(abuff, m_ClientID);
+	bool JetpackOnScore = false;
+	bool GrenadeOnScore = false;
+	bool LaserOnScore = false;
+	bool ShotGunOnScore = false;
+
+	if(GetCharacter()){
+			if ((Score >= 20) && (JetpackOnScore != true) && GetCharacter() && !GetCharacter()->JetpackOnScoreGave){
+				JetpackOnScore = true;
+				GetCharacter()->Core()->m_Jetpack = JetpackOnScore;
+				GetCharacter()->JetpackOnScoreGave = true;
+			}
+			if ((Score >= 10) && (GrenadeOnScore != true) && GetCharacter() && !GetCharacter()->GrenadeOnScoreGave){
+				GrenadeOnScore = true;
+				GetCharacter()->GiveWeapon(3);
+				GetCharacter()->GrenadeOnScoreGave = true;
+			}
+			if ((Score >= 30) && (LaserOnScore != true) && GetCharacter() && !GetCharacter()->LaserOnScoreGave){
+				LaserOnScore = true;
+				GetCharacter()->GiveWeapon(4);
+				GetCharacter()->LaserOnScoreGave = true;
+			}
+			if ((Score >= 50) && (ShotGunOnScore != true) && GetCharacter() && !GetCharacter()->ShotGunOnScoreGave){
+				ShotGunOnScore = true;
+				GetCharacter()->GiveWeapon(2);
+				GetCharacter()->ShotGunOnScoreGave = true;
+		}
 	}
 
 	// send 0 if times of others are not shown
@@ -576,6 +595,20 @@ void CPlayer::KillCharacter(int Weapon, bool SendKillMsg)
 {
 	if(m_pCharacter)
 	{
+		if((m_pCharacter->m_PlayerHooker != -1) && (GameServer()->m_apPlayers[m_pCharacter->m_PlayerHooker]) && ((Server()->Tick() - m_pCharacter->m_SpawnTick) >= (Server()->TickSpeed() * 6)))
+		{
+			// GameServer()->GetPlayerChar(m_pCharacter->m_PlayerHooker)->GetPlayer()->my_score += 5;
+			//My stuff
+			GameServer()->m_apPlayers[m_pCharacter->m_PlayerHooker]->my_score += (5 + (my_score / 10) + ((m_pCharacter->m_Hook_Ups+m_pCharacter->m_Jetpack_Ups+m_pCharacter->m_Jump_Ups) * 5));
+			my_score += -2;
+
+			m_pCharacter->Die(m_pCharacter->m_PlayerHooker, 1, 1);
+			m_pCharacter->m_PlayerHooker = -1;
+			//m_pCharacter->Core()->SetHookedPlayer(-1);
+			
+			
+		}
+		else
 		m_pCharacter->Die(m_ClientID, Weapon, SendKillMsg);
 
 		delete m_pCharacter;
@@ -936,4 +969,15 @@ void CPlayer::ProcessScoreResult(CScorePlayerResult &Result)
 			break;
 		}
 	}
+}
+//my stuff
+void CPlayer::BroadCastUpgrades()
+{
+	if(m_pCharacter)
+	{
+		char abuff[100];
+		str_format(abuff, sizeof(abuff), "Jetpack %d  Jumps %d  Hook %d", m_pCharacter->m_Jetpack_Ups, m_pCharacter->m_Jump_Ups, m_pCharacter->m_Hook_Ups);
+		m_pGameServer->SendBroadcast(abuff, m_ClientID);
+	}
+	
 }

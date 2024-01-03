@@ -34,6 +34,16 @@ class CPlayer
 	MACRO_ALLOC_POOL_ID()
 
 public:
+	//My stuff
+	std::uint32_t GetHSLA(std::uint8_t hue, std::uint8_t saturation, std::uint8_t lightness){//, std::uint8_t alpha
+        return std::uint32_t{hue} << 0
+             | std::uint32_t{saturation} << 8
+             | std::uint32_t{lightness} << 16;
+            //  | std::uint32_t{alpha} >> 0;
+			 }
+	void BroadCastUpgrades();
+	int my_score;
+
 	CPlayer(CGameContext *pGameServer, uint32_t UniqueClientID, int ClientID, int Team);
 	~CPlayer();
 

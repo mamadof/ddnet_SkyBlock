@@ -28,7 +28,46 @@ class CCharacter : public CEntity
 
 	friend class CSaveTee; // need to use core
 
+private:
+char abuff[100];
+
 public:
+//My stuff
+	bool m_BeenInShop;
+	vec2 m_BeenPos;
+	void PrintThePrice(int Price);
+	bool m_PriceShown;
+	bool m_MaximumShown;
+
+	bool m_Buyed = false;
+	bool m_Fire;
+
+	int m_Hook_Ups = 0;
+	int m_Jetpack_Ups = 0;
+	int m_Jump_Ups = 0;
+
+	int HookTimeUpTick = 0;// hook time 1.25 converted to tick()
+	int HookTimeUpPerUpgrade = 50;
+	int m_UsedHookUps = 0;
+
+	bool JetpackOnScoreGave = false;
+	bool GrenadeOnScoreGave = false;
+	bool LaserOnScoreGave = false;
+	bool ShotGunOnScoreGave = false;
+
+	bool m_RainBowFeet = true;
+	bool m_FeetColor;
+	unsigned int m_ColorValue;
+
+	int m_PlayerHooker = -1;
+	int m_PlayerHookerLastTick;
+	void PlayerHookerNormelizer();
+
+	int m_CharJetpackStrenght = 0;
+
+	CNetObj_PlayerInput *GetInput(){return &m_Input;}
+
+
 	CCharacter(CGameWorld *pWorld, CNetObj_PlayerInput LastInput);
 
 	void Reset() override;

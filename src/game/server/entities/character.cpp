@@ -204,12 +204,20 @@ void CCharacter::HandleJetpack()
 	{
 		if(m_Core.m_Jetpack)
 		{
+			//My Stuff
+			double Strength2 = 0;
+			
 			float Strength;
 			if(!m_TuneZone)
 				Strength = Tuning()->m_JetpackStrength;
 			else
 				Strength = TuningList()[m_TuneZone].m_JetpackStrength;
-			TakeDamage(Direction * -1.0f * (Strength / 100.0f / 6.11f), 0, m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
+
+			if (m_CharJetpackStrenght != Strength2)
+			{
+					Strength2 = m_CharJetpackStrenght;
+			}
+			TakeDamage(Direction * -1.0f * ((Strength+Strength2) / 100.0f / 6.11f), 0, m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
 		}
 	}
 	}
@@ -747,6 +755,24 @@ void CCharacter::PreTick()
 
 void CCharacter::Tick()
 {
+	//my stuff
+	m_Fire = (GetInput()->m_Fire % 2 == 1);
+	//testing
+	// str_format(abuff, sizeof(abuff), "fire: %d", m_Fire);
+	// GameServer()->SendBroadcast(abuff, m_pPlayer->GetCID());
+	if (!m_Fire && m_Buyed == true)
+	{
+		m_Buyed = false;
+	}
+	if(m_BeenInShop && (distance(m_BeenPos, m_Core.m_Pos) >= 20.0))
+	{
+		GameServer()->SendBroadcast("", m_pPlayer->GetCID());
+		m_BeenInShop = false;
+		m_PriceShown = false;
+		m_MaximumShown = false;
+	}
+
+
 	if(g_Config.m_SvNoWeakHook)
 	{
 		if(m_Paused)
@@ -1345,10 +1371,25 @@ void CCharacter::HandleSkippableTiles(int Index)
 		   Collision()->GetFCollisionAt(m_Pos.x - GetProximityRadius() / 3.f, m_Pos.y - GetProximityRadius() / 3.f) == TILE_DEATH ||
 		   Collision()->GetFCollisionAt(m_Pos.x - GetProximityRadius() / 3.f, m_Pos.y + GetProximityRadius() / 3.f) == TILE_DEATH) &&
 		!m_Core.m_Super && !(Team() && Teams()->TeeFinished(m_pPlayer->GetCID())))
-	{
-		Die(m_pPlayer->GetCID(), WEAPON_WORLD);
-		return;
-	}
+		{
+			//My stuff
+			if((m_PlayerHooker != -1) && GameServer()->m_apPlayers[m_PlayerHooker] && ((Server()->Tick() - m_SpawnTick) >= (Server()->TickSpeed() * 6)))
+			{
+				// GameServer()->GetPlayerChar(m_PlayerHooker)->GetPlayer()->my_score += 5;
+				GetPlayer()->my_score -= 2;
+				GameServer()->m_apPlayers[m_PlayerHooker]->my_score += (5 + ((GetPlayer()->my_score) /10) + ((m_Hook_Ups+m_Jetpack_Ups+m_Jump_Ups) * 5));
+				Die(m_PlayerHooker, 1, 1);
+				m_PlayerHooker = -1;
+				//Core()->SetHookedPlayer(-1);
+				
+				
+			}
+			else 
+			{
+				Die(m_pPlayer->GetCID(), WEAPON_WORLD);
+				return;
+			}
+		}
 
 	if(GameLayerClipped(m_Pos))
 	{
@@ -2361,4 +2402,20 @@ void CCharacter::SwapClients(int Client1, int Client2)
 {
 	const int HookedPlayer = m_Core.HookedPlayer();
 	m_Core.SetHookedPlayer(HookedPlayer == Client1 ? Client2 : HookedPlayer == Client2 ? Client1 : HookedPlayer);
+}
+
+//My Stuff
+void CCharacter::PlayerHookerNormelizer()
+{
+	if(m_PlayerHooker != -1 &&  (Server()->Tick() - m_PlayerHookerLastTick) > 300 )
+	{
+		m_PlayerHooker = -1;
+	}
+}
+void CCharacter::PrintThePrice(int Price)
+{
+	char abuff[20];
+	str_format(abuff, sizeof(abuff), "Price %d", Price);
+	GameServer()->SendBroadcast(abuff, m_pPlayer->GetCID());
+	m_PriceShown = true;
 }

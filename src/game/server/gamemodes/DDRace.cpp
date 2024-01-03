@@ -13,7 +13,6 @@
 
 #define GAME_TYPE_NAME "DDraceNetwork"
 #define TEST_TYPE_NAME "TestDDraceNetwork"
-//Hello this is a test for git <3 :)
 
 CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 	IGameController(pGameServer)
@@ -32,6 +31,10 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 {
 	CPlayer *pPlayer = pChr->GetPlayer();
 	const int ClientID = pPlayer->GetCID();
+	//My switch Tiles
+	int my_SwitchType = pChr->Collision()->GetSwitchType(MapIndex);
+	int my_SwitchNumber = pChr->Collision()->GetSwitchNumber(MapIndex);
+	int my_SwitchDelay = pChr->Collision()->GetSwitchDelay(MapIndex);
 
 	int m_TileIndex = GameServer()->Collision()->GetTileIndex(MapIndex);
 	int m_TileFIndex = GameServer()->Collision()->GetFTileIndex(MapIndex);
@@ -110,6 +113,111 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 		GameServer()->SendChatTarget(ClientID, "You are now out of the solo part");
 		pChr->SetSolo(false);
 	}
+
+
+	if ((my_SwitchType == 22) && (my_SwitchNumber == 20) && my_SwitchDelay)
+	{
+		if(Server()->Tick() % ((Server()->TickSpeed()/my_SwitchDelay)*2) == 0)
+			{
+				pPlayer->my_score += 1;
+				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+			}
+	}
+
+
+	//Score Farming
+	if ((my_SwitchType == 22) && (my_SwitchNumber == 20) && my_SwitchDelay)
+	{
+		if(Server()->Tick() % ((Server()->TickSpeed()/my_SwitchDelay)*2) == 0)
+			{
+				pPlayer->my_score += 1;
+				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+			}
+	}	
+
+	//my Switch system number begins from 20
+	if ((my_SwitchType == 22) && (my_SwitchNumber >= 21))
+	{
+		//Upgrade System
+		switch (my_SwitchNumber)
+		{
+			case 21: //Jetpack Upgrades
+			if(!pChr->m_PriceShown  && pChr->m_Jetpack_Ups != mc_Jetpack_Up_Max)
+			{
+				pChr->PrintThePrice(mc_Jetpack_Up_Price);
+			}
+			else if(pChr->m_Jetpack_Ups == mc_Jetpack_Up_Max && !pChr->m_MaximumShown)
+			{
+				GameServer()->SendBroadcast("Maximum jetpack upgrades !", ClientID);
+				pChr->m_MaximumShown = true;
+			}
+			if(pPlayer->my_score >= mc_Jetpack_Up_Price && pChr->m_Jetpack_Ups < mc_Jetpack_Up_Max && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed)
+			{
+				pChr->m_Jetpack_Ups++;
+				pChr->m_CharJetpackStrenght += 21;
+				pPlayer->my_score -= mc_Jetpack_Up_Price;
+				pChr->m_Buyed = true;
+
+				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+				// pPlayer->BroadCastUpgrades();
+			}
+			break;
+
+			case 22: //Jump Upgrades
+			if(!pChr->m_PriceShown  && pChr->m_Jump_Ups != mc_Jump_Up_Max){
+				pChr->PrintThePrice(mc_Jump_Up_Price);
+			}
+			else if(pChr->m_Jump_Ups == mc_Jump_Up_Max && !pChr->m_MaximumShown)
+			{
+				GameServer()->SendBroadcast("Maximum jump upgrades !", ClientID);
+				pChr->m_MaximumShown = true;
+			}
+			if((pPlayer->my_score >= mc_Jump_Up_Price) && (pChr->m_Jump_Ups < mc_Jump_Up_Max && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed))
+			{	
+				pChr->m_Jump_Ups++;
+				pChr->Core()->m_Jumps++;
+				pPlayer->my_score -= mc_Jump_Up_Price;
+				pChr->m_Buyed = true;
+
+				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+				// pPlayer->BroadCastUpgrades();
+
+
+			}
+			break;
+
+			case 23: //Hook upgrade
+			if(!pChr->m_PriceShown && pChr->m_Hook_Ups != mc_Hook_Up_Max){
+				pChr->PrintThePrice(mc_Hook_Up_Price);
+				pChr->m_PriceShown = true;
+
+			}else if(pChr->m_Hook_Ups == mc_Hook_Up_Max && !pChr->m_MaximumShown){
+				GameServer()->SendBroadcast("Maximum hook upgrades !", ClientID);
+				pChr->m_MaximumShown = true;
+			}
+			if(pPlayer->my_score >= mc_Hook_Up_Price && pChr->m_Hook_Ups < mc_Hook_Up_Max && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed){
+
+				pChr->m_Hook_Ups++;
+				pPlayer->my_score -= mc_Hook_Up_Price;
+				pChr->m_Buyed = true;
+
+				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+				// pPlayer->BroadCastUpgrades();
+			}
+			break;
+
+			default:
+			break;
+		}
+		pChr->m_BeenInShop = true;
+		pChr->m_BeenPos = pChr->Core()->m_Pos;
+	}
+
+
+
 }
 
 void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer)
@@ -157,6 +265,73 @@ void CGameControllerDDRace::OnReset()
 
 void CGameControllerDDRace::Tick()
 {
+	char abuff[100];
+	static CCharacter *pChr;
+	static CCharacter *pChrVictim;
+	static int ClientID;
+
+	static bool SetMap = false;
+	if(!SetMap)
+	{
+		Server()->ChangeMap("SkyBlock Alpha v0.1");
+		SetMap = true;
+	}
+
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		pChr = GameServer()->GetPlayerChar(i);
+
+		if(pChr)
+		{
+			ClientID = pChr->GetPlayer()->GetCID();
+
+
+			// int hsla = pChr->GetPlayer()->GetHSLA(85,255,0,0);
+			// pChr->GetPlayer()->m_TeeInfos.m_ColorBody = hsla;
+
+
+			
+		
+
+
+			//hooking score stuff
+			pChrVictim = GameServer()->GetPlayerChar(pChr->Core()->HookedPlayer());
+			if((pChr->Core()->HookedPlayer() != -1) && (pChrVictim = GameServer()->GetPlayerChar(pChr->Core()->HookedPlayer())))
+			{
+				if(pChr->IsAlive() )
+				{
+					pChrVictim->m_PlayerHooker = i;
+					pChrVictim->m_PlayerHookerLastTick = Server()->Tick();
+				}
+			}
+			pChr->PlayerHookerNormelizer();
+
+
+			
+			//HookUps
+			if(pChr->m_Hook_Ups && (pChr->Core()->HookedPlayer() != -1) && pChr->m_UsedHookUps)
+			{
+				pChr->Core()->m_HookTick--;
+				pChr->m_UsedHookUps--;
+			}else if(pChr->m_UsedHookUps <= (pChr->m_UsedHookUps *pChr->m_Hook_Ups) && pChr->Core()->HookedPlayer() == -1)
+			{
+				pChr->m_UsedHookUps = pChr->HookTimeUpPerUpgrade * pChr->m_Hook_Ups;
+			}
+			
+
+				//testing
+				// str_format(abuff, sizeof(abuff), "HookTick %d  HookUps %d  UsedHookUps %d" , pChr->Core()->m_HookTick, pChr->m_Hook_Ups, pChr->m_UsedHookUps);
+				// static vec2 TickPos;
+				// if(Server()->Tick() % Server()->TickSpeed() == 0)
+				// TickPos = pChr->Core()->m_Pos;
+				
+				// str_format(abuff, sizeof(abuff), "Distance: %f", distance(pChr->Core()->m_Pos, TickPos));
+				// GameServer()->SendBroadcast(abuff, ClientID);
+
+		}
+	}
+
+
 	IGameController::Tick();
 	Teams().ProcessSaveTeam();
 	Teams().Tick();
