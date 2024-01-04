@@ -115,26 +115,31 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 	}
 
 
-	if ((my_SwitchType == 22) && (my_SwitchNumber == 20) && my_SwitchDelay)
-	{
-		if(Server()->Tick() % ((Server()->TickSpeed()/my_SwitchDelay)*2) == 0)
-			{
-				pPlayer->my_score += 1;
-				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
-			}
-	}
+	// if ((my_SwitchType == 22) && (my_SwitchNumber == 20) && my_SwitchDelay)
+	// {
+	// 	if(Server()->Tick() % ((Server()->TickSpeed()/my_SwitchDelay)*2) == 0)
+	// 		{
+	// 			pPlayer->my_score += 1;
+	// 			GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+	// 		}
+	// }
 
 
 	//Score Farming
 	if ((my_SwitchType == 22) && (my_SwitchNumber == 20) && my_SwitchDelay)
 	{
-		if(Server()->Tick() % ((Server()->TickSpeed()/my_SwitchDelay)) == 0)
+		if(pChr->m_TickInFarm >= 100000)
+		{
+			pChr->m_TickInFarm = 0;
+		}
+		pChr->m_TickInFarm++;
+		if(pChr->m_TickInFarm % my_SwitchDelay == 0)
 			{
 				pPlayer->my_score += 1;
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
-				char abuff[100];
-				str_format(abuff, sizeof(abuff), "score farmed: %d", pPlayer->my_score);
-				GameServer()->SendBroadcast(abuff, ClientID);
+				// char abuff[100];
+				// str_format(abuff, sizeof(abuff), "score farmed: %d", pPlayer->my_score);
+				// GameServer()->SendBroadcast(abuff, ClientID);
 			}
 	}	
 
@@ -163,6 +168,8 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
+				// GameServer()->CreateDamageInd(pChr->Core()->m_Pos, 3.44, pChr->m_Jetpack_Ups);
 				// pPlayer->BroadCastUpgrades();
 			}
 			break;
@@ -185,6 +192,8 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
+				// GameServer()->CreateDamageInd(pChr->Core()->m_Pos, 3.44, pChr->m_Jump_Ups);
 				// pPlayer->BroadCastUpgrades();
 
 
@@ -208,6 +217,8 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
+				// GameServer()->CreateDamageInd(pChr->Core()->m_Pos, 3.44, pChr->m_Hook_Ups);
 				// pPlayer->BroadCastUpgrades();
 			}
 			break;
@@ -241,8 +252,8 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer)
 		str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()));
 		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
 
-		GameServer()->SendChatTarget(ClientID, "DDraceNetwork Mod. Version: " GAME_VERSION);
-		GameServer()->SendChatTarget(ClientID, "please visit DDNet.org or say /info and make sure to read our /rules");
+		// GameServer()->SendChatTarget(ClientID, "DDraceNetwork Mod. Version: " GAME_VERSION);
+		GameServer()->SendChatTarget(ClientID, "Telegram: @ddskyblock");
 	}
 }
 

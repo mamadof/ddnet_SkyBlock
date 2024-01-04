@@ -39,6 +39,8 @@ public:
 		int m_Weapon;
 	}m_Killer;
 	void PlayerKillerTimeOut();
+	int m_TickInFarm = 0;
+	float m_DamageIndicaterCircle;
 	
 
 	bool m_BeenInShop;

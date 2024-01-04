@@ -1513,9 +1513,6 @@ void CCharacter::SetTimeCheckpoint(int TimeCheckpoint)
 
 void CCharacter::HandleTiles(int Index)
 {
-	char abuff[100];
-	str_format(abuff, sizeof(abuff), "tile index: %d", Index);
-	GameServer()->SendBroadcast(abuff , GetPlayer()->GetCID());
 	int MapIndex = Index;
 	//int PureMapIndex = Collision()->GetPureMapIndex(m_Pos);
 	m_TileIndex = Collision()->GetTileIndex(MapIndex);
