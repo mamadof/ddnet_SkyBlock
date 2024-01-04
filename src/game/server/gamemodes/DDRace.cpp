@@ -123,10 +123,10 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 	// 			GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
 	// 		}
 	// }
-
 	// char abuff[100];
 	// str_format(abuff, sizeof(abuff), "TileIndex: %d", m_TileIndex);
 	// GameServer()->SendBroadcast(abuff, ClientID);
+
 
 
 	//Score Farming
