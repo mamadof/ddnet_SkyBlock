@@ -10,7 +10,7 @@
 	const int mc_Jump_Up_Price = 36;
 
 
-	const int mc_Jetpack_Up_Max = 6;
+	const int mc_Jetpack_Up_Max = 4;
 	const int mc_Hook_Up_Max = 3;
 	const int mc_Jump_Up_Max = 2;
 
