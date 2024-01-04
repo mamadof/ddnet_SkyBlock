@@ -124,6 +124,10 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 	// 		}
 	// }
 
+	char abuff[100];
+	str_format(abuff, sizeof(abuff), "TileIndex: %d", m_TileIndex);
+	GameServer()->SendBroadcast(abuff, ClientID);
+
 
 	//Score Farming
 	if ((my_SwitchType == 22) && (my_SwitchNumber == 20) && my_SwitchDelay)
@@ -137,9 +141,7 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 			{
 				pPlayer->my_score += 1;
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
-				// char abuff[100];
-				// str_format(abuff, sizeof(abuff), "score farmed: %d", pPlayer->my_score);
-				// GameServer()->SendBroadcast(abuff, ClientID);
+				
 			}
 	}	
 
@@ -162,9 +164,16 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 			if(pPlayer->my_score >= mc_Jetpack_Up_Price && pChr->m_Jetpack_Ups < mc_Jetpack_Up_Max && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed)
 			{
 				pChr->m_Jetpack_Ups++;
-				pChr->m_CharJetpackStrenght += 21;
-				pPlayer->my_score -= mc_Jetpack_Up_Price;
-				pChr->m_Buyed = true;
+				if(pChr->m_Jetpack_Ups == 1)
+				{
+					pChr->Core()->m_Jetpack = true;
+				}
+				else
+				{
+					pChr->m_CharJetpackStrenght += 21;
+					pPlayer->my_score -= mc_Jetpack_Up_Price;
+					pChr->m_Buyed = true;
+				}
 
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);

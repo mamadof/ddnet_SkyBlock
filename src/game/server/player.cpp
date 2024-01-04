@@ -336,17 +336,11 @@ void CPlayer::Snap(int SnappingClient)
 	// char abuff[100];
 	// str_format(abuff, sizeof(abuff), "feetColor:%d", pClientInfo->m_ColorFeet);
 	// m_pGameServer->SendBroadcast(abuff, m_ClientID);
-	bool JetpackOnScore = false;
 	bool GrenadeOnScore = false;
 	bool LaserOnScore = false;
 	bool ShotGunOnScore = false;
 
 	if(GetCharacter()){
-			if ((Score >= 20) && (JetpackOnScore != true) && GetCharacter() && !GetCharacter()->JetpackOnScoreGave){
-				JetpackOnScore = true;
-				GetCharacter()->Core()->m_Jetpack = JetpackOnScore;
-				GetCharacter()->JetpackOnScoreGave = true;
-			}
 			if ((Score >= 10) && (GrenadeOnScore != true) && GetCharacter() && !GetCharacter()->GrenadeOnScoreGave){
 				GrenadeOnScore = true;
 				GetCharacter()->GiveWeapon(3);
