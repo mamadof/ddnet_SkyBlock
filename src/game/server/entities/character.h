@@ -33,6 +33,14 @@ char abuff[100];
 
 public:
 //My stuff
+	struct {
+		int m_ID = -1;
+		int m_LastTick;
+		int m_Weapon;
+	}m_Killer;
+	void PlayerKillerTimeOut();
+	
+
 	bool m_BeenInShop;
 	vec2 m_BeenPos;
 	void PrintThePrice(int Price);

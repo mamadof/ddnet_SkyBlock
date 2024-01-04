@@ -329,8 +329,8 @@ void CPlayer::Snap(int SnappingClient)
 	//My stuff
 	if(my_score < 0){
 		my_score = 0;
-	}else if (my_score > 696969){
-		my_score = 696969;
+	}else if (my_score > 6969){
+		my_score = 6969;
 	}
 	int Score = my_score;
 	// char abuff[100];
@@ -593,27 +593,9 @@ const CCharacter *CPlayer::GetCharacter() const
 
 void CPlayer::KillCharacter(int Weapon, bool SendKillMsg)
 {
-	if(m_pCharacter)
-	{
-		if((m_pCharacter->m_PlayerHooker != -1) && (GameServer()->m_apPlayers[m_pCharacter->m_PlayerHooker]) && ((Server()->Tick() - m_pCharacter->m_SpawnTick) >= (Server()->TickSpeed() * 6)))
-		{
-			// GameServer()->GetPlayerChar(m_pCharacter->m_PlayerHooker)->GetPlayer()->my_score += 5;
-			//My stuff
-			GameServer()->m_apPlayers[m_pCharacter->m_PlayerHooker]->my_score += (5 + (my_score / 10) + ((m_pCharacter->m_Hook_Ups+m_pCharacter->m_Jetpack_Ups+m_pCharacter->m_Jump_Ups) * 5));
-			my_score += -2;
-
-			m_pCharacter->Die(m_pCharacter->m_PlayerHooker, 1, 1);
-			m_pCharacter->m_PlayerHooker = -1;
-			//m_pCharacter->Core()->SetHookedPlayer(-1);
-			
-			
-		}
-		else
-		m_pCharacter->Die(m_ClientID, Weapon, SendKillMsg);
-
-		delete m_pCharacter;
-		m_pCharacter = 0;
-	}
+	m_pCharacter->Die(m_ClientID, Weapon, SendKillMsg);
+	delete m_pCharacter;
+	m_pCharacter = 0;
 }
 
 void CPlayer::Respawn(bool WeakHook)

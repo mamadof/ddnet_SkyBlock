@@ -315,8 +315,14 @@ void CCharacter::HandleNinja()
 				// set his velocity to fast upward (for now)
 				if(m_NumObjectsHit < 10)
 					m_apHitObjects[m_NumObjectsHit++] = pChr;
-
+				//victim here take damage not you
 				pChr->TakeDamage(vec2(0, -10.0f), g_pData->m_Weapons.m_Ninja.m_pBase->m_Damage, m_pPlayer->GetCID(), WEAPON_NINJA);
+
+				//my stuff
+				pChr->m_Killer.m_ID = GetPlayer()->GetCID();
+				pChr->m_Killer.m_Weapon = WEAPON_NINJA;
+				pChr->m_Killer.m_LastTick = Server()->Tick();
+				
 			}
 		}
 
@@ -488,6 +494,11 @@ void CCharacter::FireWeapon()
 			pTarget->TakeDamage((vec2(0.f, -1.0f) + Temp) * Strength, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
 				m_pPlayer->GetCID(), m_Core.m_ActiveWeapon);
 			pTarget->UnFreeze();
+
+			//my stuff
+				pTarget->m_Killer.m_ID = GetPlayer()->GetCID();
+				pTarget->m_Killer.m_Weapon = WEAPON_HAMMER;
+				pTarget->m_Killer.m_LastTick = Server()->Tick();
 
 			if(m_FreezeHammer)
 				pTarget->Freeze();
@@ -756,6 +767,14 @@ void CCharacter::PreTick()
 void CCharacter::Tick()
 {
 	//my stuff
+	//give credit on hook
+	if(Core()->HookedPlayer() != -1 && GameServer()->m_apPlayers[Core()->HookedPlayer()]->GetCharacter())
+	{
+		GameServer()->m_apPlayers[Core()->HookedPlayer()]->GetCharacter()->m_Killer.m_ID = m_pPlayer->GetCID();
+		GameServer()->m_apPlayers[Core()->HookedPlayer()]->GetCharacter()->m_Killer.m_Weapon = WEAPON_WORLD;
+		GameServer()->m_apPlayers[Core()->HookedPlayer()]->GetCharacter()->m_Killer.m_LastTick = Server()->Tick();
+	}
+	
 	m_Fire = (GetInput()->m_Fire % 2 == 1);
 	//testing
 	// str_format(abuff, sizeof(abuff), "fire: %d", m_Fire);
@@ -942,6 +961,23 @@ bool CCharacter::IncreaseArmor(int Amount)
 
 void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 {
+	//my stuff
+	PlayerKillerTimeOut();
+	if(m_Killer.m_ID != -1 && GameServer()->m_apPlayers[m_Killer.m_ID])
+	{
+		Killer = m_Killer.m_ID;
+		Weapon = m_Killer.m_Weapon;
+		// give score to killer
+		// if((m_SpawnTick + 100) > Server()->Tick())
+		// {
+		GameServer()->m_apPlayers[m_Killer.m_ID]->my_score += (5 + (m_pPlayer->my_score / 10) + (5 * (m_Hook_Ups+m_Jetpack_Ups+m_Jump_Ups)));
+		// }
+		if(m_Killer.m_ID != m_pPlayer->GetCID())
+		{
+			m_pPlayer->my_score -= (2 + (m_pPlayer->my_score / 11));
+		}
+	}
+
 	if(Server()->IsRecording(m_pPlayer->GetCID()))
 	{
 		CPlayerData *pData = GameServer()->Score()->PlayerData(m_pPlayer->GetCID());
@@ -1372,23 +1408,8 @@ void CCharacter::HandleSkippableTiles(int Index)
 		   Collision()->GetFCollisionAt(m_Pos.x - GetProximityRadius() / 3.f, m_Pos.y + GetProximityRadius() / 3.f) == TILE_DEATH) &&
 		!m_Core.m_Super && !(Team() && Teams()->TeeFinished(m_pPlayer->GetCID())))
 		{
-			//My stuff
-			if((m_PlayerHooker != -1) && GameServer()->m_apPlayers[m_PlayerHooker] && ((Server()->Tick() - m_SpawnTick) >= (Server()->TickSpeed() * 6)))
-			{
-				// GameServer()->GetPlayerChar(m_PlayerHooker)->GetPlayer()->my_score += 5;
-				GetPlayer()->my_score -= 2;
-				GameServer()->m_apPlayers[m_PlayerHooker]->my_score += (5 + ((GetPlayer()->my_score) /10) + ((m_Hook_Ups+m_Jetpack_Ups+m_Jump_Ups) * 5));
-				Die(m_PlayerHooker, 1, 1);
-				m_PlayerHooker = -1;
-				//Core()->SetHookedPlayer(-1);
-				
-				
-			}
-			else 
-			{
-				Die(m_pPlayer->GetCID(), WEAPON_WORLD);
-				return;
-			}
+			Die(m_pPlayer->GetCID(), WEAPON_WORLD);
+			return;
 		}
 
 	if(GameLayerClipped(m_Pos))
@@ -1492,6 +1513,9 @@ void CCharacter::SetTimeCheckpoint(int TimeCheckpoint)
 
 void CCharacter::HandleTiles(int Index)
 {
+	char abuff[100];
+	str_format(abuff, sizeof(abuff), "tile index: %d", Index);
+	GameServer()->SendBroadcast(abuff , GetPlayer()->GetCID());
 	int MapIndex = Index;
 	//int PureMapIndex = Collision()->GetPureMapIndex(m_Pos);
 	m_TileIndex = Collision()->GetTileIndex(MapIndex);
@@ -2418,4 +2442,11 @@ void CCharacter::PrintThePrice(int Price)
 	str_format(abuff, sizeof(abuff), "Price %d", Price);
 	GameServer()->SendBroadcast(abuff, m_pPlayer->GetCID());
 	m_PriceShown = true;
+}
+void CCharacter::PlayerKillerTimeOut()
+{
+	if(m_Killer.m_ID != -1 &&  (Server()->Tick() - m_Killer.m_LastTick) > 300 )
+	{
+		m_Killer.m_ID = -1;
+	}
 }

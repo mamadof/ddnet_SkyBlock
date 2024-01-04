@@ -164,6 +164,7 @@ void CProjectile::Tick()
 					(m_Owner != -1) ? TeamMask : CClientMask().set());
 				GameServer()->CreateSound(ColPos, m_SoundImpact,
 					(m_Owner != -1) ? TeamMask : CClientMask().set());
+				
 			}
 		}
 		else if(m_Freeze)

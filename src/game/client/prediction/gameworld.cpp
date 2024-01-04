@@ -366,6 +366,7 @@ void CGameWorld::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage,
 				if(Owner == -1 && ActivatedTeam != -1 && pChar->Team() != ActivatedTeam)
 					continue;
 				pChar->TakeDamage(ForceDir * Dmg * 2, (int)Dmg, Owner, Weapon);
+				
 				if(GetCharacterByID(Owner) ? GetCharacterByID(Owner)->GrenadeHitDisabled() : !g_Config.m_SvHit || NoDamage)
 					break;
 			}

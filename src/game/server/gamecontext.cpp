@@ -320,6 +320,10 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 			}
 
 			pChr->TakeDamage(ForceDir * Dmg * 2, (int)Dmg, Owner, Weapon);
+			//my stuff
+				pChr->m_Killer.m_ID = Owner;
+				pChr->m_Killer.m_Weapon = WEAPON_GRENADE;
+				pChr->m_Killer.m_LastTick = Server()->Tick();
 		}
 	}
 }
