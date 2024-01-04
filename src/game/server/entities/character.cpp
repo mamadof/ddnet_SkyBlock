@@ -970,6 +970,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 		// give score to killer
 		// if((m_SpawnTick + 100) > Server()->Tick())
 		// {
+		if(m_Killer.m_ID != m_pPlayer->GetCID())
 		GameServer()->m_apPlayers[m_Killer.m_ID]->my_score += (5 + (m_pPlayer->my_score / 10) + (5 * (m_Hook_Ups+m_Jetpack_Ups+m_Jump_Ups)));
 		// }
 		if(m_Killer.m_ID != m_pPlayer->GetCID())
