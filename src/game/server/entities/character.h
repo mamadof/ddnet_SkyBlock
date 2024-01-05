@@ -41,7 +41,11 @@ public:
 	void PlayerKillerTimeOut();
 	int m_TickInFarm = 0;
 	float m_DamageIndicaterCircle;
-	
+
+	int m_ExtraLives;	
+	void ExtraLives();
+	bool m_UnfreezeNeeded;
+	void RetractAttachedHooks();
 
 	bool m_BeenInShop;
 	vec2 m_BeenPos;

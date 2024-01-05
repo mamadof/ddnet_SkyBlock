@@ -767,6 +767,16 @@ void CCharacter::PreTick()
 void CCharacter::Tick()
 {
 	//my stuff
+	if(m_ExtraLives)
+		if(!m_Core.m_IsInFreeze && IsGrounded() && !m_Core.m_DeepFrozen)
+			{
+				SetRescue();
+			}
+	if(m_UnfreezeNeeded && UnFreeze())
+	{
+		m_UnfreezeNeeded = false;
+	}
+
 	//give credit on hook
 	if(Core()->HookedPlayer() != -1 && GameServer()->m_apPlayers[Core()->HookedPlayer()]->GetCharacter())
 	{
@@ -962,6 +972,13 @@ bool CCharacter::IncreaseArmor(int Amount)
 void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 {
 	//my stuff
+	if(m_ExtraLives && m_pPlayer)
+	{
+		// dbg_msg("m_ExtraLives", "called");
+		ExtraLives();
+		return;
+	}
+
 	PlayerKillerTimeOut();
 	if(m_Killer.m_ID != -1 && GameServer()->m_apPlayers[m_Killer.m_ID])
 	{
@@ -2447,4 +2464,26 @@ void CCharacter::PlayerKillerTimeOut()
 	{
 		m_Killer.m_ID = -1;
 	}
+}
+void CCharacter::ExtraLives()
+{
+		Rescue();
+		m_UnfreezeNeeded = true;
+		GameServer()->ExtraLiveParticle(this);
+		m_ExtraLives--;
+		RetractAttachedHooks();
+		
+}
+void CCharacter::RetractAttachedHooks()
+{
+	CPlayer *pPlayer;
+	CCharacter *pChr;
+	for(int i; (i < MAX_CLIENTS) && (pPlayer = GameServer()->m_apPlayers[i]) && (pChr = pPlayer->GetCharacter()); i++)
+		{
+			if(pChr->Core()->HookedPlayer() == m_pPlayer->GetCID())
+			{
+				pChr->m_Core.SetHookedPlayer(-1);
+				pChr->m_Core.m_HookState = HOOK_RETRACT_START;
+			}
+		}
 }

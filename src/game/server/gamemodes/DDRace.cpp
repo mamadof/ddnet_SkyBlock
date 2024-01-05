@@ -115,18 +115,9 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 	}
 
 
-	// if ((my_SwitchType == 22) && (my_SwitchNumber == 20) && my_SwitchDelay)
-	// {
-	// 	if(Server()->Tick() % ((Server()->TickSpeed()/my_SwitchDelay)*2) == 0)
-	// 		{
-	// 			pPlayer->my_score += 1;
-	// 			GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
-	// 		}
-	// }
 	// char abuff[100];
-	// str_format(abuff, sizeof(abuff), "TileIndex: %d", m_TileIndex);
+	// str_format(abuff, sizeof(abuff), "SavePos x:  y:: %d", pChr->m_SetSavePos);
 	// GameServer()->SendBroadcast(abuff, ClientID);
-
 
 
 	//Score Farming
@@ -222,6 +213,29 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 
 				pChr->m_Hook_Ups++;
 				pPlayer->my_score -= mc_Hook_Up_Price;
+				pChr->m_Buyed = true;
+
+				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
+				// GameServer()->CreateDamageInd(pChr->Core()->m_Pos, 3.44, pChr->m_Hook_Ups);
+				// pPlayer->BroadCastUpgrades();
+			}
+			break;
+
+			case 24:
+			if(!pChr->m_PriceShown && pChr->m_ExtraLives != MAX_EXTRA_LIVES){
+				pChr->PrintThePrice(PRICE_EXTRA_LIVES);
+				pChr->m_PriceShown = true;
+
+			}else if(pChr->m_ExtraLives >= MAX_EXTRA_LIVES && !pChr->m_MaximumShown){
+				GameServer()->SendBroadcast("Maximum Extra Lives !", ClientID);
+				pChr->m_MaximumShown = true;
+			}
+			if(pPlayer->my_score >= PRICE_EXTRA_LIVES && pChr->m_ExtraLives < MAX_EXTRA_LIVES && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed){
+
+				pChr->m_ExtraLives++;
+				pPlayer->my_score -= PRICE_EXTRA_LIVES;
 				pChr->m_Buyed = true;
 
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);

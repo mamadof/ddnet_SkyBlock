@@ -156,6 +156,9 @@ class CGameContext : public IGameServer
 	};
 
 public:
+	//my stuff
+	void ExtraLiveParticle(CCharacter *pChar);
+
 	IServer *Server() const { return m_pServer; }
 	IConfigManager *ConfigManager() const { return m_pConfigManager; }
 	CConfig *Config() { return m_pConfig; }

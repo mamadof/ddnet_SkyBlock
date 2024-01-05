@@ -2742,7 +2742,11 @@ void CGameContext::OnKillNetMessage(const CNetMsg_Cl_Kill *pMsg, int ClientID)
 		SendChatTarget(ClientID, "Kill Protection enabled. If you really want to kill, type /kill");
 		return;
 	}
-
+	if(pChr->m_ExtraLives && pPlayer)
+	{
+		pChr->ExtraLives();
+		return;
+	}
 	pPlayer->m_LastKill = Server()->Tick();
 	pPlayer->KillCharacter(WEAPON_SELF);
 	pPlayer->Respawn();
@@ -4727,4 +4731,9 @@ void CGameContext::OnUpdatePlayerServerInfo(char *aBuf, int BufSize, int ID)
 		aJsonSkin,
 		JsonBool(m_apPlayers[ID]->IsAfk()),
 		Team);
+}
+//my stuff
+void CGameContext::ExtraLiveParticle(CCharacter *pChar)
+{
+	CreatePlayerSpawn(pChar->Core()->m_Pos);
 }

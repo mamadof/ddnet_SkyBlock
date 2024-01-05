@@ -14,6 +14,10 @@
 	const int mc_Hook_Up_Max = 3;
 	const int mc_Jump_Up_Max = 2;
 
+	const int MAX_EXTRA_LIVES = 1;
+	const int PRICE_EXTRA_LIVES = 300;
+
+
 class CGameControllerDDRace : public IGameController
 {
 public:
