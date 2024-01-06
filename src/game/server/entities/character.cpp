@@ -767,6 +767,51 @@ void CCharacter::PreTick()
 void CCharacter::Tick()
 {
 	//my stuff
+	// str_format(abuff, sizeof(abuff), "heat: %d", m_Heat);
+	// GameServer()->SendBroadcast(abuff, m_pPlayer->GetCID());
+
+	if((m_LastHeatTick + (Server()->TickSpeed() * 30)) <= Server()->Tick() && m_Heat > 0)
+	{
+		m_LastHeatTick = Server()->Tick();
+		m_Heat--;
+		m_OverHeat = true;
+	}
+	// if(m_Heat >= 7)
+	// {
+	// 	if(Server()->Tick() % 12 == 0)
+	// 	GameServer()->SendEmoticon(m_pPlayer->GetCID(), 8, -1);//use EMOTICON_OOP
+	// 	SetEmote(EMOTE_PAIN, Server()->Tick() + 10);
+	// }
+	// else if(m_Heat >= 5)
+	// {
+	// 	if(Server()->Tick() % 20 == 0)
+	// 	GameServer()->SendEmoticon(m_pPlayer->GetCID(), 11, -1);//use EMOTICON_OOP
+	// 	SetEmote(EMOTE_ANGRY, Server()->Tick() + 10);
+	// }
+	if(m_Heat >= 3 && m_Heat < 7)
+	{
+		if(Server()->Tick() % (Server()->TickSpeed() - (m_Heat * 5)) == 0)
+		{
+			GameServer()->SendEmoticon(m_pPlayer->GetCID(), 11, -1);//use EMOTICON_OOP
+			SetEmote(EMOTE_ANGRY, Server()->Tick() + 60);
+		}
+	}
+	else if(m_Heat >= 7)
+	{
+		if(Server()->Tick() % (Server()->TickSpeed() - (m_Heat * 5)) == 0)
+		{
+			GameServer()->SendEmoticon(m_pPlayer->GetCID(), 8, -1);//use EMOTICON_OOP
+			SetEmote(EMOTE_PAIN, Server()->Tick() + 60);
+		}
+	}
+	if(m_Heat >= 8)
+	{
+		Die(m_pPlayer->GetCID(), WEAPON_WORLD);
+		GameServer()->CreateExplosion(Core()->m_Pos, m_pPlayer->GetCID(), WEAPON_WORLD, false, -1);
+	}
+	
+
+
 	if(m_ExtraLives)
 		if(!m_Core.m_IsInFreeze && IsGrounded() && !m_Core.m_DeepFrozen)
 			{
@@ -984,16 +1029,49 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 	{
 		Killer = m_Killer.m_ID;
 		Weapon = m_Killer.m_Weapon;
+		if(Weapon == WEAPON_WORLD)
+		{
+			Weapon = WEAPON_NINJA;
+		}
+		int gain;
+		int TotalHeats = m_Heat;
+
+		CCharacter *KillerChr;
+		KillerChr = GameServer()->m_apPlayers[Killer]->GetCharacter();
+
+		if(m_pPlayer->GetCID() == m_Killer.m_ID)//self kill
+		{
+			m_pPlayer->my_score -= 3;
+		}
+		else if(KillerChr)//some one kills you
+		{
+			KillerChr->m_Heat++;
+			KillerChr->m_LastHeatTick = Server()->Tick();
+			TotalHeats += KillerChr->m_Heat + m_Heat;
+		}
+		if (TotalHeats >= 2)
+		{
+			gain = (5 + (m_pPlayer->my_score / 15) + (5 * (m_Hook_Ups+m_Jetpack_Ups+m_Jump_Ups))) * TotalHeats;
+			GameServer()->m_apPlayers[Killer]->my_score += gain;
+			m_pPlayer->my_score -= (6 + (m_pPlayer->my_score / 11));
+		}
+		else
+		{
+			gain = (5 + (m_pPlayer->my_score / 10) + (5 * (m_Hook_Ups+m_Jetpack_Ups+m_Jump_Ups)));
+			GameServer()->m_apPlayers[Killer]->my_score += gain;
+			m_pPlayer->my_score -= (6 + (m_pPlayer->my_score / 15));
+		}
+		if(m_OverHeat)
+		{
+			Killer = -1;
+			Weapon = WEAPON_WORLD;
+		}		
+		// char abuff[100];
+		// str_format(abuff, sizeof(abuff), "heat: %d", Heats);
+		// GameServer()->SendBroadcast(abuff, Killer);
 		// give score to killer
 		// if((m_SpawnTick + 100) > Server()->Tick())
 		// {
-		if(m_Killer.m_ID != m_pPlayer->GetCID())
-		GameServer()->m_apPlayers[m_Killer.m_ID]->my_score += (5 + (m_pPlayer->my_score / 10) + (5 * (m_Hook_Ups+m_Jetpack_Ups+m_Jump_Ups)));
-		// }
-		if(m_Killer.m_ID != m_pPlayer->GetCID())
-		{
-			m_pPlayer->my_score -= (2 + (m_pPlayer->my_score / 11));
-		}
 	}
 
 	if(Server()->IsRecording(m_pPlayer->GetCID()))
@@ -2082,6 +2160,23 @@ void CCharacter::SetRescue()
 {
 	m_RescueTee.Save(this);
 	m_SetSavePos = true;
+
+	if(m_FirstRescueCall)
+	{
+		m_aRescueTee[0].m_RescueTee.Save(this);
+		m_aRescueTee[1].m_RescueTee.Save(this);
+		m_aRescueTee[2].m_RescueTee.Save(this);
+		m_aRescueTee[3].m_RescueTee.Save(this);
+		m_aRescueTee[4].m_RescueTee.Save(this);
+		m_FirstRescueCall = false;
+	}
+	m_aRescueTee[0] = m_aRescueTee[1];
+	m_aRescueTee[1] = m_aRescueTee[2];
+	m_aRescueTee[2] = m_aRescueTee[3];
+	m_aRescueTee[3] = m_aRescueTee[4];
+
+	m_aRescueTee[4].m_RescueTee.Save(this);
+	m_aRescueTee[4].m_Tick = Server()->Tick();
 }
 
 void CCharacter::DDRaceTick()
@@ -2416,6 +2511,11 @@ void CCharacter::Rescue()
 		}
 
 		float StartTime = m_StartTime;
+		//my stuff
+		if(m_ExtraLives)
+		{
+			m_RescueTee = m_aRescueTee[0].m_RescueTee;
+		}
 		m_RescueTee.Load(this, Team());
 		// Don't load these from saved tee:
 		m_Core.m_Vel = vec2(0, 0);
@@ -2453,7 +2553,6 @@ void CCharacter::PlayerHookerNormelizer()
 }
 void CCharacter::PrintThePrice(int Price)
 {
-	char abuff[20];
 	str_format(abuff, sizeof(abuff), "Price %d", Price);
 	GameServer()->SendBroadcast(abuff, m_pPlayer->GetCID());
 	m_PriceShown = true;
@@ -2467,18 +2566,18 @@ void CCharacter::PlayerKillerTimeOut()
 }
 void CCharacter::ExtraLives()
 {
+		RetractAttachedHooks();
 		Rescue();
 		m_UnfreezeNeeded = true;
 		GameServer()->ExtraLiveParticle(this);
 		m_ExtraLives--;
-		RetractAttachedHooks();
 		
 }
 void CCharacter::RetractAttachedHooks()
 {
 	CPlayer *pPlayer;
 	CCharacter *pChr;
-	for(int i; (i < MAX_CLIENTS) && (pPlayer = GameServer()->m_apPlayers[i]) && (pChr = pPlayer->GetCharacter()); i++)
+	for(int i = 0; (i < MAX_CLIENTS) && (pPlayer = GameServer()->m_apPlayers[i]) && (pChr = pPlayer->GetCharacter()); i++)
 		{
 			if(pChr->Core()->HookedPlayer() == m_pPlayer->GetCID())
 			{

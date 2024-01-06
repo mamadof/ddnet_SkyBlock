@@ -329,8 +329,8 @@ void CPlayer::Snap(int SnappingClient)
 	//My stuff
 	if(my_score < 0){
 		my_score = 0;
-	}else if (my_score > 6969){
-		my_score = 6969;
+	}else if (my_score > MAXIMUM_SCORE){
+		my_score = MAXIMUM_SCORE;
 	}
 	int Score = my_score;
 	// char abuff[100];
@@ -360,7 +360,7 @@ void CPlayer::Snap(int SnappingClient)
 
 	// send 0 if times of others are not shown
 	if(SnappingClient != m_ClientID && g_Config.m_SvHideScore)
-		Score = -9999;
+		Score = -69;
 
 	if(!Server()->IsSixup(SnappingClient))
 	{

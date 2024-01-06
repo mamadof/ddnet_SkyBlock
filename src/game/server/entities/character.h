@@ -41,6 +41,9 @@ public:
 	void PlayerKillerTimeOut();
 	int m_TickInFarm = 0;
 	float m_DamageIndicaterCircle;
+	int m_Heat = 0;
+	int m_LastHeatTick;
+	bool m_OverHeat;
 
 	int m_ExtraLives;	
 	void ExtraLives();
@@ -217,6 +220,11 @@ private:
 	bool m_SetSavePos;
 	CSaveTee m_RescueTee;
 
+	struct {
+		CSaveTee m_RescueTee;
+		int m_Tick;
+	}m_aRescueTee[5];
+	bool m_FirstRescueCall = true;
 public:
 	CGameTeams *Teams() { return m_pTeams; }
 	void SetTeams(CGameTeams *pTeams);
