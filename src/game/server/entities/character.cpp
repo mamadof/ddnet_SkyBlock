@@ -4,6 +4,7 @@
 #include "laser.h"
 #include "pickup.h"
 #include "projectile.h"
+#include "light.h"
 
 #include <antibot/antibot_data.h>
 
@@ -766,28 +767,12 @@ void CCharacter::PreTick()
 
 void CCharacter::Tick()
 {
-	//my stuff
-	// str_format(abuff, sizeof(abuff), "heat: %d", m_Heat);
-	// GameServer()->SendBroadcast(abuff, m_pPlayer->GetCID());
-
+	//heat
 	if((m_LastHeatTick + (Server()->TickSpeed() * 30)) <= Server()->Tick() && m_Heat > 0)
 	{
 		m_LastHeatTick = Server()->Tick();
 		m_Heat--;
-		m_OverHeat = true;
 	}
-	// if(m_Heat >= 7)
-	// {
-	// 	if(Server()->Tick() % 12 == 0)
-	// 	GameServer()->SendEmoticon(m_pPlayer->GetCID(), 8, -1);//use EMOTICON_OOP
-	// 	SetEmote(EMOTE_PAIN, Server()->Tick() + 10);
-	// }
-	// else if(m_Heat >= 5)
-	// {
-	// 	if(Server()->Tick() % 20 == 0)
-	// 	GameServer()->SendEmoticon(m_pPlayer->GetCID(), 11, -1);//use EMOTICON_OOP
-	// 	SetEmote(EMOTE_ANGRY, Server()->Tick() + 10);
-	// }
 	if(m_Heat >= 3 && m_Heat < 7)
 	{
 		if(Server()->Tick() % (Server()->TickSpeed() - (m_Heat * 5)) == 0)
@@ -806,8 +791,9 @@ void CCharacter::Tick()
 	}
 	if(m_Heat >= 8)
 	{
-		Die(m_pPlayer->GetCID(), WEAPON_WORLD);
 		GameServer()->CreateExplosion(Core()->m_Pos, m_pPlayer->GetCID(), WEAPON_WORLD, false, -1);
+		GameServer()->CreateSound(Core()->m_Pos, SOUND_GRENADE_EXPLODE);
+		Die(m_pPlayer->GetCID(), WEAPON_WORLD, false);
 	}
 	
 
@@ -1017,9 +1003,9 @@ bool CCharacter::IncreaseArmor(int Amount)
 void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 {
 	//my stuff
+	m_pPlayer->my_score -= 3;
 	if(m_ExtraLives && m_pPlayer)
 	{
-		// dbg_msg("m_ExtraLives", "called");
 		ExtraLives();
 		return;
 	}
@@ -1041,7 +1027,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 
 		if(m_pPlayer->GetCID() == m_Killer.m_ID)//self kill
 		{
-			m_pPlayer->my_score -= 3;
+			m_pPlayer->my_score -= 0;
 		}
 		else if(KillerChr)//some one kills you
 		{
@@ -1061,11 +1047,6 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 			GameServer()->m_apPlayers[Killer]->my_score += gain;
 			m_pPlayer->my_score -= (6 + (m_pPlayer->my_score / 15));
 		}
-		if(m_OverHeat)
-		{
-			Killer = -1;
-			Weapon = WEAPON_WORLD;
-		}		
 		// char abuff[100];
 		// str_format(abuff, sizeof(abuff), "heat: %d", Heats);
 		// GameServer()->SendBroadcast(abuff, Killer);

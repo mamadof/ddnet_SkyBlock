@@ -2676,6 +2676,40 @@ void CGameContext::OnEmoticonNetMessage(const CNetMsg_Cl_Emoticon *pMsg, int Cli
 		pPlayer->m_LastEmoteGlobal = Server()->Tick();
 		SendEmoticon(ClientID, pMsg->m_Emoticon, -1);
 	}
+	//my stuff
+	switch (pMsg->m_Emoticon)//add sounds to the emotes
+	{
+		case EMOTICON_HEARTS:
+		case EMOTICON_EYES:
+		CreateSound(GetPlayerChar(ClientID)->Core()->m_Pos, SOUND_PLAYER_SPAWN);
+		break;
+		case EMOTICON_SORRY:
+		case EMOTICON_OOP:
+		case EMOTICON_SUSHI:
+		CreateSound(GetPlayerChar(ClientID)->Core()->m_Pos, SOUND_PLAYER_PAIN_SHORT);
+		break;
+		case EMOTICON_QUESTION:
+		case EMOTICON_WTF:
+		CreateSound(GetPlayerChar(ClientID)->Core()->m_Pos, SOUND_WEAPON_SPAWN);
+		break;
+		case EMOTICON_SPLATTEE:
+		case EMOTICON_DEVILTEE:
+		CreateSound(GetPlayerChar(ClientID)->Core()->m_Pos, SOUND_NINJA_FIRE);
+		break;
+		case EMOTICON_DROP:
+		CreateSound(GetPlayerChar(ClientID)->Core()->m_Pos, SOUND_TEE_CRY);
+		break;
+		case EMOTICON_EXCLAMATION:
+		case EMOTICON_GHOST:
+		CreateSound(GetPlayerChar(ClientID)->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+		break;
+		case EMOTICON_MUSIC:
+		CreateSound(GetPlayerChar(ClientID)->Core()->m_Pos, SOUND_PICKUP_NINJA);
+		break;
+
+		default:
+		break;
+	}
 
 	if(g_Config.m_SvEmotionalTees && pPlayer->m_EyeEmoteEnabled)
 	{
@@ -4735,5 +4769,8 @@ void CGameContext::OnUpdatePlayerServerInfo(char *aBuf, int BufSize, int ID)
 //my stuff
 void CGameContext::ExtraLiveParticle(CCharacter *pChar)
 {
-	CreatePlayerSpawn(pChar->Core()->m_Pos);
+	if(pChar)
+	{
+		CreatePlayerSpawn(pChar->Core()->m_Pos);
+	}
 }

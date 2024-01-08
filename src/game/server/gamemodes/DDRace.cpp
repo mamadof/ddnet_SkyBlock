@@ -10,6 +10,7 @@
 #include <game/server/player.h>
 #include <game/server/score.h>
 #include <game/version.h>
+#include <game/server/entities/projectile.h>
 
 #define GAME_TYPE_NAME "SkyBl"
 #define TEST_TYPE_NAME "SkyBl_t"
@@ -302,6 +303,7 @@ void CGameControllerDDRace::OnReset()
 
 void CGameControllerDDRace::Tick()
 {
+	static bool once = false;
 	char abuff[100];
 	static CCharacter *pChr;
 	static CCharacter *pChrVictim;
@@ -314,23 +316,15 @@ void CGameControllerDDRace::Tick()
 		SetMap = true;
 	}
 
+
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		pChr = GameServer()->GetPlayerChar(i);
 
 		if(pChr)
 		{
-			ClientID = pChr->GetPlayer()->GetCID();
-
-
-			// int hsla = pChr->GetPlayer()->GetHSLA(85,255,0,0);
-			// pChr->GetPlayer()->m_TeeInfos.m_ColorBody = hsla;
-
-
+			ClientID = pChr->GetPlayer()->GetCID();	
 			
-		
-
-
 			//hooking score stuff
 			pChrVictim = GameServer()->GetPlayerChar(pChr->Core()->HookedPlayer());
 			if((pChr->Core()->HookedPlayer() != -1) && (pChrVictim = GameServer()->GetPlayerChar(pChr->Core()->HookedPlayer())))
@@ -354,17 +348,6 @@ void CGameControllerDDRace::Tick()
 			{
 				pChr->m_UsedHookUps = pChr->HookTimeUpPerUpgrade * pChr->m_Hook_Ups;
 			}
-			
-
-				//testing
-				// str_format(abuff, sizeof(abuff), "HookTick %d  HookUps %d  UsedHookUps %d" , pChr->Core()->m_HookTick, pChr->m_Hook_Ups, pChr->m_UsedHookUps);
-				// static vec2 TickPos;
-				// if(Server()->Tick() % Server()->TickSpeed() == 0)
-				// TickPos = pChr->Core()->m_Pos;
-				
-				// str_format(abuff, sizeof(abuff), "Distance: %f", distance(pChr->Core()->m_Pos, TickPos));
-				// GameServer()->SendBroadcast(abuff, ClientID);
-
 		}
 	}
 

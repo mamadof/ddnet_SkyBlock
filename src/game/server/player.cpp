@@ -612,6 +612,7 @@ CCharacter *CPlayer::ForceSpawn(vec2 Pos)
 
 void CPlayer::SetTeam(int Team, bool DoChatMsg)
 {
+	return;//my stuffffffffffffffffffffffffffffff hereeeeeeeeeeeeeeeee no teaaaaaaaaaaammmmmmmmmmmmmm
 	KillCharacter();
 
 	m_Team = Team;

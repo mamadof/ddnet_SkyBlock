@@ -42,7 +42,7 @@ public:
             //  | std::uint32_t{alpha} >> 0;
 			 }
 	void BroadCastUpgrades();
-	int my_score = 0;
+	int my_score = 3000;
 	const int MAXIMUM_SCORE = 6969;
 
 	CPlayer(CGameContext *pGameServer, uint32_t UniqueClientID, int ClientID, int Team);
