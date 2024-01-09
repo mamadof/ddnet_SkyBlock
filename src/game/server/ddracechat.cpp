@@ -11,6 +11,10 @@
 #include "player.h"
 #include "score.h"
 
+//my stuff
+// #include <fstream>
+// #include <string>
+
 bool CheckClientID(int ClientID);
 
 void CGameContext::ConCredits(IConsole::IResult *pResult, void *pUserData)
@@ -1856,4 +1860,25 @@ void CGameContext::ConTimeCP(IConsole::IResult *pResult, void *pUserData)
 
 	const char *pName = pResult->GetString(0);
 	pSelf->Score()->LoadPlayerData(pResult->m_ClientID, pName);
+}
+
+//my stuff
+void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+	return;
+
+	if(str_length(pResult->GetString(0)) > 20)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "try something shorter for username, less than 21");
+		return;
+	}
+	if(str_length(pResult->GetString(1)) > 20)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "try something shorter for password, less than 21");
+		return;
+	}
+
+	// pSelf->SendBroadcast(p1char, pResult->m_ClientID);
 }

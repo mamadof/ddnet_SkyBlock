@@ -138,6 +138,8 @@ class CGameContext : public IGameServer
 	static void ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainSettingUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConDumpLog(IConsole::IResult *pResult, void *pUserData);
+	//my stuff
+	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 
 	void Construct(int Resetting);
 	void Destruct(int Resetting);

@@ -70,5 +70,6 @@ CHAT_COMMAND("unsolo", "", CFGFLAG_CHAT, ConPracticeUnSolo, this, "Puts you out 
 CHAT_COMMAND("undeep", "", CFGFLAG_CHAT, ConPracticeUnDeep, this, "Puts you out of deep freeze")
 
 CHAT_COMMAND("kill", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConProtectedKill, this, "Kill yourself when kill-protected during a long game (use f1, kill for regular kill)")
-
+//my stuff
+CHAT_COMMAND("register", "s[username] s[password]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRegister, this, "Register a bank accout to save or deposit your money.")
 #undef CHAT_COMMAND
