@@ -587,9 +587,13 @@ const CCharacter *CPlayer::GetCharacter() const
 
 void CPlayer::KillCharacter(int Weapon, bool SendKillMsg)
 {
-	m_pCharacter->Die(m_ClientID, Weapon, SendKillMsg);
-	delete m_pCharacter;
-	m_pCharacter = 0;
+	if(m_pCharacter)
+	{
+		m_pCharacter->Die(m_ClientID, Weapon, SendKillMsg);
+
+		delete m_pCharacter;
+		m_pCharacter = 0;
+	}
 }
 
 void CPlayer::Respawn(bool WeakHook)
