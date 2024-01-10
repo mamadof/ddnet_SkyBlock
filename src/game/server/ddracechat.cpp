@@ -12,8 +12,9 @@
 #include "score.h"
 
 //my stuff
-// #include <fstream>
-// #include <string>
+#include <fstream>
+#include <string>
+#include <ctime>
 
 bool CheckClientID(int ClientID);
 
@@ -1865,20 +1866,91 @@ void CGameContext::ConTimeCP(IConsole::IResult *pResult, void *pUserData)
 //my stuff
 void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 {
+	static constexpr unsigned int MAXIMUM_USERNAME_LENGTH = 120;
+	static constexpr unsigned int MAXIMUM_PASSWORD_LENGTH = 120;
+	static constexpr unsigned int MINIMUM_USERNAME_LENGTH = 6;
+	static constexpr unsigned int MINIMUM_PASSWORD_LENGTH = 6;
+
 	CGameContext *pSelf = (CGameContext *)pUserData;
+	// CStorage *storage;
 	if(!CheckClientID(pResult->m_ClientID))
 	return;
 
-	if(str_length(pResult->GetString(0)) > 20)
+	if(str_length(pResult->GetString(0)) > MAXIMUM_USERNAME_LENGTH)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "try something shorter for username, less than 21");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "try something shorter for username.");
 		return;
 	}
-	if(str_length(pResult->GetString(1)) > 20)
+	if(str_length(pResult->GetString(1)) > MAXIMUM_PASSWORD_LENGTH)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "try something shorter for password, less than 21");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "try something shorter for password.");
+		return;
+	}
+	if(str_length(pResult->GetString(0)) < MINIMUM_USERNAME_LENGTH)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "try something longer for username.");
+		return;
+	}
+	if(str_length(pResult->GetString(1)) < MINIMUM_PASSWORD_LENGTH)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "try something longer for password.");
 		return;
 	}
 
-	// pSelf->SendBroadcast(p1char, pResult->m_ClientID);
+	std::ofstream ofile;
+	std::ifstream ifile;
+	ifile.open("build/BankAccounts.txt");
+	if(ifile.good())//check if the file existed
+	{
+		ifile.close();
+	}
+	else//making an empty file if it's not existed, but it most be there a build folder
+	{
+		ofile.open("build/BankAccounts.txt");
+		ofile.write("",0);
+		ofile.close();
+	}
+
+	ifile.open("build/BankAccounts.txt");
+	std::string str;
+	while(std::getline(ifile, str))//check if the password or usename already exist
+	{
+		if(str.find(pResult->GetString(0),0) != std::string::npos)
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "this username already exist.");
+			ifile.close();
+			return;
+		}
+		if(str.find(pResult->GetString(1),0) != std::string::npos)
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "this password already exist.");
+			ifile.close();
+			return;
+		}
+	}
+	struct tm *CreationTime;
+	time_t rawtime;
+	time(&rawtime);
+	char aCreationTime[30];
+	CreationTime = localtime(&rawtime);
+	strftime(aCreationTime, 30, "%F", CreationTime);
+
+	str.clear();
+	str = pResult->GetString(0);
+	str.append(" ");
+	str.append(pResult->GetString(1));
+	str.append(" 0 ");
+	str.append(aCreationTime);
+
+
+	ofile.open("build/BankAccounts.txt", std::ios_base::app);
+	ofile<<str<<std::endl;
+	ofile.close();
+
+	char abuff[MAXIMUM_USERNAME_LENGTH+MAXIMUM_PASSWORD_LENGTH];
+	str_format(abuff, sizeof(abuff), "use /log %s %s  to log in you bank account :)", pResult->GetString(0), pResult->GetString(1));
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+
+
+	// pSelf->SendBroadcast(storage->m_aUserdir, pResult->m_ClientID);
 }
