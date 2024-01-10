@@ -1872,7 +1872,6 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	static constexpr unsigned int MINIMUM_PASSWORD_LENGTH = 6;
 
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	// CStorage *storage;
 	if(!CheckClientID(pResult->m_ClientID))
 	return;
 
@@ -1957,5 +1956,103 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 {
+	static constexpr unsigned int MAXIMUM_USERNAME_LENGTH = 120;
+	static constexpr unsigned int MAXIMUM_PASSWORD_LENGTH = 120;
+	static constexpr unsigned int MINIMUM_USERNAME_LENGTH = 6;
+	static constexpr unsigned int MINIMUM_PASSWORD_LENGTH = 6;
+
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+	return;
+
+	if(str_length(pResult->GetString(0)) > MAXIMUM_USERNAME_LENGTH)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "username not exist. if you are not registered. try /register");
+		return;
+	}
+	if(str_length(pResult->GetString(1)) > MAXIMUM_PASSWORD_LENGTH)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "username not exist. if you are not registered. try /register.");
+		return;
+	}
+	if(str_length(pResult->GetString(0)) < MINIMUM_USERNAME_LENGTH)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "username not exist. if you are not registered. try /register.");
+		return;
+	}
+	if(str_length(pResult->GetString(1)) < MINIMUM_PASSWORD_LENGTH)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "username not exist. if you are not registered. try /register.");
+		return;
+	}
+
+	std::string line;
+	std::string username;
+	std::string password;
+	std::string money;
+	std::string str;
+	char Char;
+	unsigned int spaces;
+	unsigned int UsernameEnd;
+	unsigned int PasswordEnd;
+	unsigned int MoneyEnd;
+
+
+	std::ifstream ifile;
+	ifile.open("build/BankAccounts.txt");
+
+	if(ifile.good())
+	{
+		for(unsigned int LineNumber=0; std::getline(ifile, line); LineNumber++)
+		{
+			spaces = 0;
+			for(unsigned int CharNumber=0; CharNumber <= line.length(); CharNumber++)
+			{
+				Char = line[CharNumber];
+				if(Char == ' ')
+				{
+					spaces++;
+					continue;
+				}
+				switch(spaces)
+				{
+				case 0:
+				username.append(1, Char);
+				break;
+
+				case 1:
+				password.append(1, Char);
+				break;
+
+				case 2:
+				money.append(1, Char);
+				break;
+				}
+			}
+			if(username == pResult->GetString(0))
+			{
+				if(password == pResult->GetString(1))//successful to login into bankaccount
+				{
+					pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "success");
+				}
+				else
+				{
+					pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "Wrong Password");
+				}
+			}
+
+			username.clear();
+			password.clear();
+			money.clear();
+			// if(username == pResult->GetString(0))
+			// {
+			// 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "username found");
+			// }
+		}
+	}
+	else
+	{
+		dbg_msg("BankAccounts", "unable to open the file build/BankAccounts.txt");
+	}
 	return;
 }
