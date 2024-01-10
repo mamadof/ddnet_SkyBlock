@@ -224,7 +224,7 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 			}
 			break;
 
-			case 24:
+			case 24://ExtraLives
 			if(!pChr->m_PriceShown && pChr->m_ExtraLives != MAX_EXTRA_LIVES){
 				pChr->PrintThePrice(PRICE_EXTRA_LIVES);
 				pChr->m_PriceShown = true;
@@ -245,6 +245,12 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 				// GameServer()->CreateDamageInd(pChr->Core()->m_Pos, 3.44, pChr->m_Hook_Ups);
 				// pPlayer->BroadCastUpgrades();
 			}
+			break;
+
+			case 25://bank deposit
+			break;
+
+			case 26://bank withdraw
 			break;
 
 			default:

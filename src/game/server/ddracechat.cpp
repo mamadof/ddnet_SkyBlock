@@ -15,6 +15,7 @@
 #include <fstream>
 #include <string>
 #include <ctime>
+#include <limits>
 
 bool CheckClientID(int ClientID);
 
@@ -1996,6 +1997,7 @@ void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 	unsigned int UsernameEnd;
 	unsigned int PasswordEnd;
 	unsigned int MoneyEnd;
+	bool connected = false;
 
 
 	std::ifstream ifile;
@@ -2033,11 +2035,21 @@ void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 			{
 				if(password == pResult->GetString(1))//successful to login into bankaccount
 				{
-					pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "success");
-				}
-				else
-				{
-					pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "Wrong Password");
+					CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+					if(pPlayer)
+					{
+						pPlayer->m_LogedIn = true;
+						pPlayer->m_BankAdress = LineNumber;
+						pPlayer->m_BankBalanceWhenConnected = std::stoull(money);
+
+						char abuff[100];
+						pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "you have connected to your bank account.");
+						str_format(abuff, sizeof(abuff), "balance %llu", std::stoull(money), LineNumber);
+						pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+
+						bool connected = true;
+						return;
+					}
 				}
 			}
 
@@ -2049,6 +2061,8 @@ void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 			// 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "username found");
 			// }
 		}
+		if(!connected)
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "There is not such a username or password");
 	}
 	else
 	{

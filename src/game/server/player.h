@@ -45,6 +45,11 @@ public:
 	int my_score = 3000;
 	const int MAXIMUM_SCORE = 6969;
 
+	bool m_LogedIn;
+	unsigned int m_BankAdress;
+	unsigned long long int m_BankBalanceWhenConnected;
+
+
 	CPlayer(CGameContext *pGameServer, uint32_t UniqueClientID, int ClientID, int Team);
 	~CPlayer();
 
