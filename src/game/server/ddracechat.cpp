@@ -1948,9 +1948,14 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	ofile.close();
 
 	char abuff[MAXIMUM_USERNAME_LENGTH+MAXIMUM_PASSWORD_LENGTH];
-	str_format(abuff, sizeof(abuff), "use /log %s %s  to log in you bank account :)", pResult->GetString(0), pResult->GetString(1));
+	str_format(abuff, sizeof(abuff), "use /login %s %s  to log in to your bank account.", pResult->GetString(0), pResult->GetString(1));
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
 
 
 	// pSelf->SendBroadcast(storage->m_aUserdir, pResult->m_ClientID);
+}
+
+void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
+{
+	return;
 }
