@@ -82,6 +82,8 @@ public:
 
 	int m_CharJetpackStrenght = 0;
 
+	bool m_IsMoneyChanged;
+
 	CNetObj_PlayerInput *GetInput(){return &m_Input;}
 
 

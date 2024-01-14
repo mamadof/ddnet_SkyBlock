@@ -38,7 +38,7 @@ public:
 	//My stuff
 
 	void BroadCastUpgrades();
-	int my_score = 3000;
+	int my_score = 0;
 
 	bool m_IsLoged;
 	struct CAccount

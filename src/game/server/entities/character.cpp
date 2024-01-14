@@ -1003,12 +1003,13 @@ bool CCharacter::IncreaseArmor(int Amount)
 void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 {
 	//my stuff
-	m_pPlayer->my_score -= 3;
 	if(m_ExtraLives && m_pPlayer)
 	{
 		ExtraLives();
 		return;
 	}
+	m_pPlayer->my_score -= 3;
+
 
 	PlayerKillerTimeOut();
 	if(m_Killer.m_ID != -1 && GameServer()->m_apPlayers[m_Killer.m_ID])
@@ -1052,7 +1053,6 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 		// GameServer()->SendBroadcast(abuff, Killer);
 		// give score to killer
 		// if((m_SpawnTick + 100) > Server()->Tick())
-		// {
 	}
 
 	if(Server()->IsRecording(m_pPlayer->GetCID()))

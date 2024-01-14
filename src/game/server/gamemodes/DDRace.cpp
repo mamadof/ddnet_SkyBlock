@@ -167,9 +167,9 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 				{
 					pChr->m_CharJetpackStrenght += 21;
 					pPlayer->my_score -= mc_Jetpack_Up_Price;
-					pChr->m_Buyed = true;
 				}
 
+				pChr->m_Buyed = true;
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
 				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
@@ -269,9 +269,16 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 					GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_HIT);
 					pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
 					GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
-					str_format(abuff, sizeof(abuff), "balance: %llu", pPlayer->ReadMoney());
-					GameServer()->SendBroadcast(abuff, pPlayer->GetCID());
+					
 					pChr->m_Buyed = true;
+					pChr->m_IsMoneyChanged = true;
+				}
+				if(!pChr->m_PriceShown || pChr->m_IsMoneyChanged)// shows the money anyways
+				{
+					pChr->m_IsMoneyChanged = false;
+					str_format(abuff, sizeof(abuff), "Saved Money: %llu", pPlayer->ReadMoney());
+					GameServer()->SendBroadcast(abuff, pPlayer->GetCID());
+					pChr->m_PriceShown = true;
 				}
 			}
 			else if(!pChr->m_MaximumShown)
@@ -287,7 +294,6 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 				unsigned long long int money = pPlayer->ReadMoney();
 				if((pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed && pPlayer->my_score != NSkyb::PLAYER_MAXIMUM_SCORE && money != 0)
 				{
-					char abuff[200];
 					if(money >= NSkyb::MONEY_WITHDRAW_AMOUNT)
 					{
 						if((pPlayer->my_score + NSkyb::MONEY_WITHDRAW_AMOUNT) <= NSkyb::PLAYER_MAXIMUM_SCORE)
@@ -306,13 +312,21 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 						pPlayer->my_score += money;
 						pPlayer->ChangeMoney(-money);
 					}
-					str_format(abuff, sizeof(abuff), "balance: %llu", pPlayer->ReadMoney());
-					GameServer()->SendBroadcast(abuff, pPlayer->GetCID());
-					pChr->m_Buyed = true;
 
 					GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_HIT);
 					pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
 					GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
+
+					pChr->m_Buyed = true;
+					pChr->m_IsMoneyChanged = true;
+				}
+				if(!pChr->m_PriceShown || pChr->m_IsMoneyChanged)
+				{
+					char abuff[200];
+					pChr->m_IsMoneyChanged = false;
+					str_format(abuff, sizeof(abuff), "Saved Money: %llu", pPlayer->ReadMoney());
+					GameServer()->SendBroadcast(abuff, pPlayer->GetCID());
+					pChr->m_PriceShown = true;
 				}
 			}
 			else if(!pChr->m_MaximumShown)
