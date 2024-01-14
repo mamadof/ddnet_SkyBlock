@@ -3790,6 +3790,11 @@ void CGameContext::OnInit(const void *pPersistentData)
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "git-revision", GIT_SHORTREV_HASH);
 
 	m_pAntibot->RoundStart(this);
+	//my stuff
+	if(!m_pStorage->FolderExists("Accounts", IStorage::TYPE_SAVE))
+    {
+        m_pStorage->CreateFolder("Accounts", IStorage::TYPE_SAVE);
+    }
 }
 
 void CGameContext::CreateAllEntities(bool Initial)

@@ -12,6 +12,9 @@
 #include <game/version.h>
 #include <game/server/entities/projectile.h>
 
+//my stuff
+#include <skyblock/values.h>
+
 #define GAME_TYPE_NAME "SkyBl"
 #define TEST_TYPE_NAME "SkyBl_t"
 
@@ -247,10 +250,76 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 			}
 			break;
 
-			case 25://bank deposit
+			case 25://bank money deposit
+			if(pPlayer->m_IsLoged)
+			{
+				char abuff[200];
+				if((pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed && pPlayer->my_score != 0)
+				{
+					if(pPlayer->my_score >= NSkyb::MONEY_DIPASIT_AMOUNT)
+					{
+						pPlayer->ChangeMoney(NSkyb::MONEY_DIPASIT_AMOUNT);
+						pPlayer->my_score -= NSkyb::MONEY_DIPASIT_AMOUNT;
+					}
+					else if(pPlayer->my_score < NSkyb::MONEY_DIPASIT_AMOUNT)
+					{
+						pPlayer->ChangeMoney(pPlayer->my_score);
+						pPlayer->my_score = 0;
+					}
+					GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_HIT);
+					pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+					GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
+					str_format(abuff, sizeof(abuff), "balance: %llu", pPlayer->ReadMoney());
+					GameServer()->SendBroadcast(abuff, pPlayer->GetCID());
+					pChr->m_Buyed = true;
+				}
+			}
+			else if(!pChr->m_MaximumShown)
+			{
+				GameServer()->SendBroadcast("You need a bank account first. try /register or /login", ClientID);
+				pChr->m_MaximumShown = true;
+			}
 			break;
 
-			case 26://bank withdraw
+			case 26://bank money withdraw
+			if(pPlayer->m_IsLoged)
+			{
+				unsigned long long int money = pPlayer->ReadMoney();
+				if((pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed && pPlayer->my_score != NSkyb::PLAYER_MAXIMUM_SCORE && money != 0)
+				{
+					char abuff[200];
+					if(money >= NSkyb::MONEY_WITHDRAW_AMOUNT)
+					{
+						if((pPlayer->my_score + NSkyb::MONEY_WITHDRAW_AMOUNT) <= NSkyb::PLAYER_MAXIMUM_SCORE)
+						{
+							pPlayer->ChangeMoney(NSkyb::MONEY_WITHDRAW_AMOUNT * -1);
+							pPlayer->my_score += NSkyb::MONEY_WITHDRAW_AMOUNT;
+						}
+						else if((pPlayer->my_score + NSkyb::MONEY_WITHDRAW_AMOUNT) >= NSkyb::PLAYER_MAXIMUM_SCORE)
+						{
+							pPlayer->ChangeMoney((NSkyb::PLAYER_MAXIMUM_SCORE - pPlayer->my_score) * -1);
+							pPlayer->my_score = NSkyb::PLAYER_MAXIMUM_SCORE;
+						}
+					}
+					else if(money < NSkyb::MONEY_WITHDRAW_AMOUNT)
+					{
+						pPlayer->my_score += money;
+						pPlayer->ChangeMoney(-money);
+					}
+					str_format(abuff, sizeof(abuff), "balance: %llu", pPlayer->ReadMoney());
+					GameServer()->SendBroadcast(abuff, pPlayer->GetCID());
+					pChr->m_Buyed = true;
+
+					GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_HIT);
+					pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+					GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
+				}
+			}
+			else if(!pChr->m_MaximumShown)
+			{
+				GameServer()->SendBroadcast("You need a bank account firts. try /register or /login", ClientID);
+				pChr->m_MaximumShown = true;
+			}
 			break;
 
 			default:
@@ -329,7 +398,8 @@ void CGameControllerDDRace::Tick()
 
 		if(pChr)
 		{
-			ClientID = pChr->GetPlayer()->GetCID();	
+			ClientID = pChr->GetPlayer()->GetCID();
+			// GameServer()->SendChatTarget(ClientID, GameServer()->m_apPlayers[ClientID]->m_Account.m_Username);	
 			
 			//hooking score stuff
 			pChrVictim = GameServer()->GetPlayerChar(pChr->Core()->HookedPlayer());

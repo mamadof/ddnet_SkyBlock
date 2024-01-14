@@ -2017,6 +2017,8 @@ set_src(GAME_SHARED GLOB src/game
   tuning.h
   version.h
   voting.h
+  ../skyblock/values.h
+  ../skyblock/values.cpp
 )
 # A bit hacky, but these are needed to register all the UUIDs, even for stuff
 # that doesn't link game.

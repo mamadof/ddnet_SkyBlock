@@ -824,7 +824,7 @@ void CCharacter::Tick()
 	{
 		m_Buyed = false;
 	}
-	if(m_BeenInShop && (distance(m_BeenPos, m_Core.m_Pos) >= 20.0))
+	if(m_BeenInShop && (distance(m_BeenPos, m_Core.m_Pos) >= 15.0))
 	{
 		GameServer()->SendBroadcast("", m_pPlayer->GetCID());
 		m_BeenInShop = false;

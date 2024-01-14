@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <optional>
+#include <skyblock/values.h>
 
 class CCharacter;
 class CGameContext;
@@ -35,19 +36,19 @@ class CPlayer
 
 public:
 	//My stuff
-	std::uint32_t GetHSLA(std::uint8_t hue, std::uint8_t saturation, std::uint8_t lightness){//, std::uint8_t alpha
-        return std::uint32_t{hue} << 0
-             | std::uint32_t{saturation} << 8
-             | std::uint32_t{lightness} << 16;
-            //  | std::uint32_t{alpha} >> 0;
-			 }
+
 	void BroadCastUpgrades();
 	int my_score = 3000;
-	const int MAXIMUM_SCORE = 6969;
 
-	bool m_LogedIn;
-	unsigned int m_BankAdress;
-	unsigned long long int m_BankBalanceWhenConnected;
+	bool m_IsLoged;
+	struct CAccount
+	{
+		char m_aUsername[NSkyb::MAXIMUM_USERNAME_LENGTH];
+		char m_aPassword[NSkyb::MAXIMUM_PASSWORD_LENGTH];
+	}m_Account;
+	long long unsigned int ReadMoney();
+	bool ChangeMoney(long long int change);
+	bool m_BankIsBussy;
 
 
 	CPlayer(CGameContext *pGameServer, uint32_t UniqueClientID, int ClientID, int Team);

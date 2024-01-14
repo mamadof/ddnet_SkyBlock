@@ -12,10 +12,8 @@
 #include "score.h"
 
 //my stuff
-#include <fstream>
-#include <string>
 #include <ctime>
-#include <limits>
+#include <skyblock/values.h>
 
 bool CheckClientID(int ClientID);
 
@@ -1867,206 +1865,206 @@ void CGameContext::ConTimeCP(IConsole::IResult *pResult, void *pUserData)
 //my stuff
 void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 {
-	static constexpr unsigned int MAXIMUM_USERNAME_LENGTH = 120;
-	static constexpr unsigned int MAXIMUM_PASSWORD_LENGTH = 120;
-	static constexpr unsigned int MINIMUM_USERNAME_LENGTH = 6;
-	static constexpr unsigned int MINIMUM_PASSWORD_LENGTH = 6;
-
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
 	return;
 
-	if(str_length(pResult->GetString(0)) > MAXIMUM_USERNAME_LENGTH)
+	//check the lenght of the username and password
+	if(str_length(pResult->GetString(0)) > NSkyb::MAXIMUM_USERNAME_LENGTH)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "try something shorter for username.");
 		return;
 	}
-	if(str_length(pResult->GetString(1)) > MAXIMUM_PASSWORD_LENGTH)
+	if(str_length(pResult->GetString(1)) > NSkyb::MAXIMUM_PASSWORD_LENGTH)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "try something shorter for password.");
 		return;
 	}
-	if(str_length(pResult->GetString(0)) < MINIMUM_USERNAME_LENGTH)
+	if(str_length(pResult->GetString(0)) < NSkyb::MINIMUM_USERNAME_LENGTH)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "try something longer for username.");
 		return;
 	}
-	if(str_length(pResult->GetString(1)) < MINIMUM_PASSWORD_LENGTH)
+	if(str_length(pResult->GetString(1)) < NSkyb::MINIMUM_PASSWORD_LENGTH)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "try something longer for password.");
 		return;
 	}
 
-	std::ofstream ofile;
-	std::ifstream ifile;
-	ifile.open("build/BankAccounts.txt");
-	if(ifile.good())//check if the file existed
+	//check for using standard characters
+	CSkyb *pSkyb;
+	if(!pSkyb->IsStandardString(pResult->GetString(0)) || !pSkyb->IsStandardString(pResult->GetString(1)))
 	{
-		ifile.close();
-	}
-	else//making an empty file if it's not existed, but it most be there a build folder
-	{
-		ofile.open("build/BankAccounts.txt");
-		ofile.write("",0);
-		ofile.close();
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "do not use unstandard characters: '!,@,#,$,%,^,&,<,*,'");
+		return;
 	}
 
-	ifile.open("build/BankAccounts.txt");
-	std::string str;
-	while(std::getline(ifile, str))//check if the password or usename already exist
+
+	//check if the username alrady exist
+	char UsernamePath[512];
+	str_format(UsernamePath, sizeof(UsernamePath), "Accounts/%s", pResult->GetString(0));
+	if(pSelf->Storage()->FolderExists(UsernamePath, IStorage::TYPE_SAVE))
 	{
-		if(str.find(pResult->GetString(0),0) != std::string::npos)
-		{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "this username already exist.");
-			ifile.close();
-			return;
-		}
-		if(str.find(pResult->GetString(1),0) != std::string::npos)
-		{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "this password already exist.");
-			ifile.close();
-			return;
-		}
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "This username already exist!");
+		return;
 	}
-	struct tm *CreationTime;
+	//make a folder with same name as Username in Accounts folder
+	pSelf->Storage()->CreateFolder(UsernamePath, IStorage::TYPE_SAVE);
+	char abuff[600];//for general use
+
+	//write the password to seperated file
+	char PasswordPath[300];
+	str_format(PasswordPath, sizeof(PasswordPath), "%s/%s", UsernamePath, "password");
+	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, PasswordPath, abuff, sizeof(abuff));
+	IOHANDLE file = io_open(abuff, IOFLAG_WRITE);
+	io_write(file, pResult->GetString(1), str_length(pResult->GetString(1)));
+
+	//write moeny to a file
+	char MoneyPath[300];
+	str_format(MoneyPath, sizeof(MoneyPath), "%s/%s", UsernamePath, "money");
+	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, MoneyPath, abuff, sizeof(abuff));
+	file = io_open(abuff, IOFLAG_WRITE);
+	io_write(file, "0", 1);
+
+	//time stuff for getting the creation of the account date
+	char aTime[50];
 	time_t rawtime;
+	struct tm *timeinfo;
 	time(&rawtime);
-	char aCreationTime[30];
-	CreationTime = localtime(&rawtime);
-	strftime(aCreationTime, 30, "%F", CreationTime);
+	timeinfo = localtime(&rawtime);
+	strftime(aTime, sizeof(aTime), "%F", timeinfo);
 
-	str.clear();
-	str = pResult->GetString(0);
-	str.append(" ");
-	str.append(pResult->GetString(1));
-	str.append(" 0 ");
-	str.append(aCreationTime);
+	//write the creation time
+	char CreationDatePath[300];
+	str_format(CreationDatePath, sizeof(CreationDatePath), "%s/%s", UsernamePath, "CreationDate");
+	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, CreationDatePath, abuff, sizeof(abuff));
+	file = io_open(abuff, IOFLAG_WRITE);
+	io_write(file, aTime, str_length(aTime));
 
 
-	ofile.open("build/BankAccounts.txt", std::ios_base::app);
-	ofile<<str<<std::endl;
-	ofile.close();
 
-	char abuff[MAXIMUM_USERNAME_LENGTH+MAXIMUM_PASSWORD_LENGTH];
-	str_format(abuff, sizeof(abuff), "use /login %s %s  to log in to your bank account.", pResult->GetString(0), pResult->GetString(1));
+
+	io_close(file);
+	str_format(abuff, sizeof(abuff), "you made an account. use /login %s %s ", pResult->GetString(0), pResult->GetString(1));
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
-
-
-	// pSelf->SendBroadcast(storage->m_aUserdir, pResult->m_ClientID);
 }
 
 void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 {
-	static constexpr unsigned int MAXIMUM_USERNAME_LENGTH = 120;
-	static constexpr unsigned int MAXIMUM_PASSWORD_LENGTH = 120;
-	static constexpr unsigned int MINIMUM_USERNAME_LENGTH = 6;
-	static constexpr unsigned int MINIMUM_PASSWORD_LENGTH = 6;
-
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
 	return;
 
-	if(str_length(pResult->GetString(0)) > MAXIMUM_USERNAME_LENGTH)
+	//check the lenght of the username and password
+	if(str_length(pResult->GetString(0)) > NSkyb::MAXIMUM_USERNAME_LENGTH)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "username not exist. if you are not registered. try /register");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "there is no such a username");
 		return;
 	}
-	if(str_length(pResult->GetString(1)) > MAXIMUM_PASSWORD_LENGTH)
+	if(str_length(pResult->GetString(1)) > NSkyb::MAXIMUM_PASSWORD_LENGTH)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "username not exist. if you are not registered. try /register.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "wrong password");
 		return;
 	}
-	if(str_length(pResult->GetString(0)) < MINIMUM_USERNAME_LENGTH)
+	if(str_length(pResult->GetString(0)) < NSkyb::MINIMUM_USERNAME_LENGTH)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "username not exist. if you are not registered. try /register.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "there is no such a username");
 		return;
 	}
-	if(str_length(pResult->GetString(1)) < MINIMUM_PASSWORD_LENGTH)
+	if(str_length(pResult->GetString(1)) < NSkyb::MINIMUM_PASSWORD_LENGTH)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "username not exist. if you are not registered. try /register.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "wrong password");
 		return;
 	}
 
-	std::string line;
-	std::string username;
-	std::string password;
-	std::string money;
-	std::string str;
-	char Char;
-	unsigned int spaces;
-	unsigned int UsernameEnd;
-	unsigned int PasswordEnd;
-	unsigned int MoneyEnd;
-	bool connected = false;
-
-
-	std::ifstream ifile;
-	ifile.open("build/BankAccounts.txt");
-
-	if(ifile.good())
+	//check for using standard characters
+	CSkyb *pSkyb;
+	if(!pSkyb->IsStandardString(pResult->GetString(0)) || !pSkyb->IsStandardString(pResult->GetString(1)))
 	{
-		for(unsigned int LineNumber=0; std::getline(ifile, line); LineNumber++)
-		{
-			spaces = 0;
-			for(unsigned int CharNumber=0; CharNumber <= line.length(); CharNumber++)
-			{
-				Char = line[CharNumber];
-				if(Char == ' ')
-				{
-					spaces++;
-					continue;
-				}
-				switch(spaces)
-				{
-				case 0:
-				username.append(1, Char);
-				break;
-
-				case 1:
-				password.append(1, Char);
-				break;
-
-				case 2:
-				money.append(1, Char);
-				break;
-				}
-			}
-			if(username == pResult->GetString(0))
-			{
-				if(password == pResult->GetString(1))//successful to login into bankaccount
-				{
-					CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-					if(pPlayer)
-					{
-						pPlayer->m_LogedIn = true;
-						pPlayer->m_BankAdress = LineNumber;
-						pPlayer->m_BankBalanceWhenConnected = std::stoull(money);
-
-						char abuff[100];
-						pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "you have connected to your bank account.");
-						str_format(abuff, sizeof(abuff), "balance %llu", std::stoull(money), LineNumber);
-						pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
-
-						bool connected = true;
-						return;
-					}
-				}
-			}
-
-			username.clear();
-			password.clear();
-			money.clear();
-			// if(username == pResult->GetString(0))
-			// {
-			// 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "username found");
-			// }
-		}
-		if(!connected)
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "There is not such a username or password");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "there is no such a username");
+		return;
 	}
-	else
+
+	char abuff[512];//for general uses
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+
+	if(pPlayer && pPlayer->m_IsLoged && (str_comp(pResult->GetString(0), pPlayer->m_Account.m_aUsername) == 0))//check to not connect to loged in account again
 	{
-		dbg_msg("BankAccounts", "unable to open the file build/BankAccounts.txt");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You already logedin to this account.");
+		return;
 	}
+
+	//check if the username exist
+	char UsernamePath[512];
+	str_format(UsernamePath, sizeof(UsernamePath), "Accounts/%s", pResult->GetString(0));
+	if(!pSelf->Storage()->FolderExists(UsernamePath, IStorage::TYPE_SAVE))
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "There isn't any account with this username. try /register");
+		return;
+	}
+
+	char PasswordPath[300];
+	str_format(PasswordPath, sizeof(PasswordPath), "%s/%s", UsernamePath, "password");
+	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, PasswordPath, abuff, sizeof(abuff));
+	IOHANDLE file = io_open(abuff, IOFLAG_READ);
+	if(str_comp(io_read_all_str(file), pResult->GetString(1)) != 0)//check the password
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "Wrong password.");
+		return;
+	}
+
+	if(pPlayer)
+	{
+		pPlayer->m_IsLoged = true;
+		str_copy(pPlayer->m_Account.m_aUsername, pResult->GetString(0));
+		str_copy(pPlayer->m_Account.m_aPassword, pResult->GetString(1));
+
+		str_format(abuff, sizeof(abuff), "Loged in, your balance: %llu", pPlayer->ReadMoney());
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+
+
+		char aTime[50];
+		time_t rawtime;
+		struct tm *timeinfo;
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
+		strftime(aTime, sizeof(aTime), "%F", timeinfo);
+
+		//write the LastUsed date
+		char LastUsedPath[300];
+		str_format(LastUsedPath, sizeof(LastUsedPath), "%s/%s", UsernamePath, "LastUsed");
+		pSelf->Storage()->RemoveFile(LastUsedPath, IStorage::TYPE_SAVE);
+		pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, LastUsedPath, abuff, sizeof(abuff));
+		file = io_open(abuff, IOFLAG_WRITE);
+		io_write(file, aTime, str_length(aTime));
+		io_close(file);
+	}
+}
+
+void CGameContext::ConTest(IConsole::IResult *pResult, void *pUserData)//for testing stuff
+{
+	CSkyb *skyb;
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
 	return;
+
+	if(pResult->GetString(0))
+	{
+
+		if(skyb->IsStandardString(pResult->GetString(0)))
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "is standard");
+
+		}
+		else
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "is not standard");
+		}
+	}else
+	{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "you typed nothing");
+	}
+
+	// pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", skyb->path);
+	// dbg_msg("test", skyb->path);
 }

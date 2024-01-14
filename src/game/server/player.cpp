@@ -8,12 +8,18 @@
 
 #include <base/system.h>
 
+#include <climits>
 #include <engine/antibot.h>
 #include <engine/server.h>
 #include <engine/shared/config.h>
 
 #include <game/gamecore.h>
 #include <game/teamscore.h>
+
+//my stuff
+#include <engine/storage.h>
+#include <limits>
+#include <fstream>
 
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
@@ -329,8 +335,8 @@ void CPlayer::Snap(int SnappingClient)
 	//My stuff
 	if(my_score < 0){
 		my_score = 0;
-	}else if (my_score > MAXIMUM_SCORE){
-		my_score = MAXIMUM_SCORE;
+	}else if (my_score > NSkyb::PLAYER_MAXIMUM_SCORE){
+		my_score = NSkyb::PLAYER_MAXIMUM_SCORE;
 	}
 	int Score = my_score;
 	// char abuff[100];
@@ -961,4 +967,74 @@ void CPlayer::BroadCastUpgrades()
 		m_pGameServer->SendBroadcast(abuff, m_ClientID);
 	}
 	
+}
+//reads the players money
+long long unsigned int CPlayer::ReadMoney()
+{
+	m_BankIsBussy = true;//to dissallow multy player use it
+	char *Username = m_Account.m_aUsername;
+	char *Password = m_Account.m_aPassword;
+	char abuff[300];
+	char afullpath[600];
+
+	if(!m_IsLoged)
+	{
+		return 0;
+	}
+
+	//get the full path to the money
+	str_format(abuff, sizeof(abuff), "Accounts/%s/money", Username);
+	m_pGameServer->Storage()->GetCompletePath(IStorage::TYPE_SAVE, abuff, afullpath, sizeof(afullpath));
+
+	IOHANDLE file = io_open(afullpath, IOFLAG_READ);
+	str_copy(abuff, io_read_all_str(file));
+	io_close(file);
+	m_BankIsBussy = false;
+	return std::stoull(abuff);
+
+}
+
+bool CPlayer::ChangeMoney(long long int change)
+{
+	m_BankIsBussy = true;//to dissallow multy player use it
+	unsigned long long int CurrentMoney = ReadMoney();
+	char *Username = m_Account.m_aUsername;
+	char *Password = m_Account.m_aPassword;
+	char abuff[300];
+	char afullpath[600];
+
+	if(!m_IsLoged)
+	{
+		return false;
+	}
+
+	//check if the change request is do able
+	if(change == 0)
+	{
+		return false;
+	}
+	else if(change > 0 && (change + CurrentMoney) >= ULLONG_MAX)
+	{
+		return false;
+	}
+	else if(change < 0 && (change * -1) > CurrentMoney)
+	{
+		return false;
+	}
+	
+	//remove the file named money
+	str_format(abuff, sizeof(abuff), "Accounts/%s/money", Username);
+	m_pGameServer->Storage()->RemoveFile(abuff,IStorage::TYPE_SAVE);
+
+	//write the new money into a file named money
+	m_pGameServer->Storage()->GetCompletePath(IStorage::TYPE_SAVE, abuff, afullpath, sizeof(afullpath));
+	IOHANDLE file = io_open(afullpath, IOFLAG_WRITE);
+	str_format(abuff, sizeof(abuff), "%llu", CurrentMoney + change);
+	io_write(file, abuff, str_length(abuff));
+	io_close(file);
+
+
+
+	m_BankIsBussy = false;
+	return true;
 }

@@ -141,6 +141,7 @@ class CGameContext : public IGameServer
 	//my stuff
 	static void ConRegister(IConsole::IResult *pResult, void *pUserData);
 	static void Conlogin(IConsole::IResult *pResult, void *pUserData);
+	static void ConTest(IConsole::IResult *pResult, void *pUserData);//for testing stuff
 
 	void Construct(int Resetting);
 	void Destruct(int Resetting);
