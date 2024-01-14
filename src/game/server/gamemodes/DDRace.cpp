@@ -317,7 +317,7 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 			}
 			else if(!pChr->m_MaximumShown)
 			{
-				GameServer()->SendBroadcast("You need a bank account firts. try /register or /login", ClientID);
+				GameServer()->SendBroadcast("You need a bank account first. try /register or /login", ClientID);
 				pChr->m_MaximumShown = true;
 			}
 			break;

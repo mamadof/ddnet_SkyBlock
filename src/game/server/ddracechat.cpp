@@ -1918,6 +1918,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, PasswordPath, abuff, sizeof(abuff));
 	IOHANDLE file = io_open(abuff, IOFLAG_WRITE);
 	io_write(file, pResult->GetString(1), str_length(pResult->GetString(1)));
+	io_close(file);
 
 	//write moeny to a file
 	char MoneyPath[300];
@@ -1925,6 +1926,7 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, MoneyPath, abuff, sizeof(abuff));
 	file = io_open(abuff, IOFLAG_WRITE);
 	io_write(file, "0", 1);
+	io_close(file);
 
 	//time stuff for getting the creation of the account date
 	char aTime[50];
@@ -1933,18 +1935,18 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 	strftime(aTime, sizeof(aTime), "%F", timeinfo);
-
 	//write the creation time
 	char CreationDatePath[300];
 	str_format(CreationDatePath, sizeof(CreationDatePath), "%s/%s", UsernamePath, "CreationDate");
 	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, CreationDatePath, abuff, sizeof(abuff));
 	file = io_open(abuff, IOFLAG_WRITE);
 	io_write(file, aTime, str_length(aTime));
-
-
-
-
 	io_close(file);
+
+
+
+
+	
 	str_format(abuff, sizeof(abuff), "you made an account. use /login %s %s ", pResult->GetString(0), pResult->GetString(1));
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
 }
@@ -2004,12 +2006,15 @@ void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 	}
 
 	char PasswordPath[300];
+	mem_zero(abuff, sizeof(abuff));
 	str_format(PasswordPath, sizeof(PasswordPath), "%s/%s", UsernamePath, "password");
 	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, PasswordPath, abuff, sizeof(abuff));
 	IOHANDLE file = io_open(abuff, IOFLAG_READ);
-	if(str_comp(io_read_all_str(file), pResult->GetString(1)) != 0)//check the password
+	char FilePassword[200];
+	str_copy(FilePassword, io_read_all_str(file));
+	if(str_comp(FilePassword, pResult->GetString(1)) != 0)//check the password
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "Wrong password.");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", io_read_all_str(file));
 		return;
 	}
 
