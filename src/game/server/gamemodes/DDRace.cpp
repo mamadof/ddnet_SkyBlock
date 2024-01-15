@@ -125,7 +125,7 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 
 
 	//Score Farming
-	if ((my_SwitchType == 22) && (my_SwitchNumber == 20) && my_SwitchDelay)
+	if ((my_SwitchType == 22) && (my_SwitchNumber == 20) && my_SwitchDelay && pPlayer->my_score != NSkyb::PLAYER_MAXIMUM_SCORE)
 	{
 		if(pChr->m_TickInFarm >= 100000)
 		{
