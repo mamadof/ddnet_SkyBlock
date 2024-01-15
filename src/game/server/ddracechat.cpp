@@ -2046,34 +2046,6 @@ void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
-void CGameContext::ConTest(IConsole::IResult *pResult, void *pUserData)//for testing stuff
-{
-	CSkyb *skyb;
-	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!CheckClientID(pResult->m_ClientID))
-	return;
-
-	if(pResult->GetString(0))
-	{
-
-		if(skyb->IsStandardString(pResult->GetString(0)))
-		{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "is standard");
-
-		}
-		else
-		{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "is not standard");
-		}
-	}else
-	{
-			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "you typed nothing");
-	}
-
-	// pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", skyb->path);
-	// dbg_msg("test", skyb->path);
-}
-
 void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)//for testing stuff
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -2211,5 +2183,15 @@ void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)//for tes
 
 	}
 
+
+}
+
+void CGameContext::ConTest(IConsole::IResult *pResult, void *pUserData)//for testing stuff
+{
+	return;
+	CSkyb *skyb;
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+	return;
 
 }

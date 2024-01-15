@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.12...3.27.4)
 
+# add_compile_definitions(CONF_DEBUG) #this was my added shit just to add debug dummies
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15 CACHE INTERNAL "Minimum macOS deployment version")
 if(CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS 10.15)
   message(WARNING "Building for macOS < 10.15 is not supported")

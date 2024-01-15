@@ -70,10 +70,10 @@ int CGameWorld::FindEntities(vec2 Pos, float Radius, CEntity **ppEnts, int Max, 
 
 void CGameWorld::InsertEntity(CEntity *pEnt)
 {
-#ifdef CONF_DEBUG
-	for(CEntity *pCur = m_apFirstEntityTypes[pEnt->m_ObjType]; pCur; pCur = pCur->m_pNextTypeEntity)
-		dbg_assert(pCur != pEnt, "err");
-#endif
+// #ifdef CONF_DEBUG
+	// for(CEntity *pCur = m_apFirstEntityTypes[pEnt->m_ObjType]; pCur; pCur = pCur->m_pNextTypeEntity)
+	// 	dbg_assert(pCur != pEnt, "err");
+// #endif
 
 	// insert it
 	if(m_apFirstEntityTypes[pEnt->m_ObjType])

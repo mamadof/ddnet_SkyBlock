@@ -2,7 +2,7 @@
 #define SKYBLOCK_VALUES_H
 
 //I put all of my values and functions here
-
+#define DEBUG_DUMMIES_NUMBER 12
 
 namespace NSkyb {
     enum{
@@ -14,7 +14,7 @@ namespace NSkyb {
         MONEY_DIPASIT_AMOUNT = 1000,
         MONEY_WITHDRAW_AMOUNT = 1000,
 
-        PLAYER_MAXIMUM_SCORE = 6969,
+        PLAYER_MAXIMUM_SCORE = 9999,
     };
 }
 class CSkyb

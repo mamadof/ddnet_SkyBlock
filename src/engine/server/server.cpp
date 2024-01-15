@@ -45,6 +45,8 @@
 #include "databases/connection_pool.h"
 #include "register.h"
 
+#include <skyblock/values.h>
+
 extern bool IsInterrupted();
 
 CSnapIDPool::CSnapIDPool()
@@ -2665,15 +2667,15 @@ int CServer::LoadMap(const char *pMapName)
 	return 1;
 }
 
-#ifdef CONF_DEBUG
+// #ifdef CONF_DEBUG
 void CServer::UpdateDebugDummies(bool ForceDisconnect)
 {
-	if(m_PreviousDebugDummies == g_Config.m_DbgDummies && !ForceDisconnect)
+	if(m_PreviousDebugDummies == DEBUG_DUMMIES_NUMBER && !ForceDisconnect)
 		return;
 
-	for(int DummyIndex = 0; DummyIndex < maximum(m_PreviousDebugDummies, g_Config.m_DbgDummies); ++DummyIndex)
+	for(int DummyIndex = 0; DummyIndex < maximum(m_PreviousDebugDummies, DEBUG_DUMMIES_NUMBER); ++DummyIndex)
 	{
-		const bool AddDummy = !ForceDisconnect && DummyIndex < g_Config.m_DbgDummies;
+		const bool AddDummy = !ForceDisconnect && DummyIndex < DEBUG_DUMMIES_NUMBER;
 		const int ClientID = MAX_CLIENTS - DummyIndex - 1;
 		if(AddDummy && m_aClients[ClientID].m_State == CClient::STATE_EMPTY)
 		{
@@ -2681,7 +2683,7 @@ void CServer::UpdateDebugDummies(bool ForceDisconnect)
 			m_aClients[ClientID].m_DebugDummy = true;
 			GameServer()->OnClientConnected(ClientID, nullptr);
 			m_aClients[ClientID].m_State = CClient::STATE_INGAME;
-			str_format(m_aClients[ClientID].m_aName, sizeof(m_aClients[ClientID].m_aName), "Debug dummy %d", DummyIndex + 1);
+			str_format(m_aClients[ClientID].m_aName, sizeof(m_aClients[ClientID].m_aName), "%d", DummyIndex + 1);//the name of the dummies
 			GameServer()->OnClientEnter(ClientID);
 		}
 		else if(!AddDummy && m_aClients[ClientID].m_DebugDummy)
@@ -2692,7 +2694,7 @@ void CServer::UpdateDebugDummies(bool ForceDisconnect)
 		if(AddDummy && m_aClients[ClientID].m_DebugDummy)
 		{
 			CNetObj_PlayerInput Input = {0};
-			Input.m_Direction = (ClientID & 1) ? -1 : 1;
+			// Input.m_Direction = (ClientID & 1) ? -1 : 1;
 			m_aClients[ClientID].m_aInputs[0].m_GameTick = Tick() + 1;
 			mem_copy(m_aClients[ClientID].m_aInputs[0].m_aData, &Input, minimum(sizeof(Input), sizeof(m_aClients[ClientID].m_aInputs[0].m_aData)));
 			m_aClients[ClientID].m_LatestInput = m_aClients[ClientID].m_aInputs[0];
@@ -2700,9 +2702,9 @@ void CServer::UpdateDebugDummies(bool ForceDisconnect)
 		}
 	}
 
-	m_PreviousDebugDummies = ForceDisconnect ? 0 : g_Config.m_DbgDummies;
+	m_PreviousDebugDummies = ForceDisconnect ? 0 : DEBUG_DUMMIES_NUMBER;
 }
-#endif
+// #endif
 
 int CServer::Run()
 {
@@ -2851,9 +2853,9 @@ int CServer::Run()
 						}
 					}
 
-#ifdef CONF_DEBUG
+// #ifdef CONF_DEBUG
 					UpdateDebugDummies(true);
-#endif
+// #endif
 					GameServer()->OnShutdown(m_pPersistentData);
 
 					for(int ClientID = 0; ClientID < MAX_CLIENTS; ClientID++)
@@ -2943,9 +2945,9 @@ int CServer::Run()
 			{
 				GameServer()->OnPreTickTeehistorian();
 
-#ifdef CONF_DEBUG
+// #ifdef CONF_DEBUG
 				UpdateDebugDummies(false);
-#endif
+// #endif
 
 				for(int c = 0; c < MAX_CLIENTS; c++)
 				{
