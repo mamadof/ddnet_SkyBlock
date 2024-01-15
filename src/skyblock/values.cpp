@@ -12,3 +12,13 @@ bool CSkyb::IsStandardString(const char *pStr)//checks if a string is standard o
     }
     return true;
 }
+bool CSkyb::IsNumberString(const char *pStr)//checks if a string is standard or not
+{
+    while(*pStr)
+    {
+        if (!(*pStr >= '0' && *pStr <= '9'))
+            return false;
+        pStr++;
+    }
+    return true;
+}

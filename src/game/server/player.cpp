@@ -972,11 +972,10 @@ void CPlayer::BroadCastUpgrades()
 long long unsigned int CPlayer::ReadMoney()
 {
 	m_BankIsBussy = true;//to dissallow multy player use it
+	long long unsigned int money;
 	char *Username = m_Account.m_aUsername;
-	char *Password = m_Account.m_aPassword;
-	char abuff[300];
 	char afullpath[600];
-
+	char abuff[300];
 	if(!m_IsLoged)
 	{
 		return 0;
@@ -987,10 +986,11 @@ long long unsigned int CPlayer::ReadMoney()
 	m_pGameServer->Storage()->GetCompletePath(IStorage::TYPE_SAVE, abuff, afullpath, sizeof(afullpath));
 
 	IOHANDLE file = io_open(afullpath, IOFLAG_READ);
-	str_copy(abuff, io_read_all_str(file));
+	std::string strmoney = io_read_all_str(file);
+	money = std::stoull(strmoney);
 	io_close(file);
 	m_BankIsBussy = false;
-	return std::stoull(abuff);
+	return money;
 
 }
 

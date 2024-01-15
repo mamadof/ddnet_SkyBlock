@@ -2014,7 +2014,7 @@ void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 	str_copy(FilePassword, io_read_all_str(file));
 	if(str_comp(FilePassword, pResult->GetString(1)) != 0)//check the password
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", io_read_all_str(file));
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "Wrong password.");
 		return;
 	}
 
@@ -2024,7 +2024,7 @@ void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 		str_copy(pPlayer->m_Account.m_aUsername, pResult->GetString(0));
 		str_copy(pPlayer->m_Account.m_aPassword, pResult->GetString(1));
 
-		str_format(abuff, sizeof(abuff), "Loged in, your balance: %llu", pPlayer->ReadMoney());
+		str_format(abuff, sizeof(abuff), "Loged in, your money: %llu", pPlayer->ReadMoney());
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
 
 
@@ -2072,4 +2072,144 @@ void CGameContext::ConTest(IConsole::IResult *pResult, void *pUserData)//for tes
 
 	// pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", skyb->path);
 	// dbg_msg("test", skyb->path);
+}
+
+void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)//for testing stuff
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+	return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	CPlayer *pTargetPlayer;
+	if(!pPlayer)
+	return;
+
+
+	if(!pPlayer->m_IsLoged)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You need a bank account. try /register or /login");
+		return;
+	}
+	int ClientID = pPlayer->GetCID();
+	char abuff[200];
+	char pName[100];
+	int Target = -1;
+	switch (pResult->NumArguments())
+	{
+		case 0://show the balance of the player
+		mem_zero(abuff, sizeof(abuff));
+		str_format(abuff, sizeof(abuff), "you have %llu in your bank account.", pPlayer->ReadMoney());
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+		break;
+
+		case 1://show the balance of the target player
+		str_copy(pName ,pResult->GetString(0));
+		for(int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if(!str_comp(pName, pSelf->Server()->ClientName(i)))
+			{
+				Target = i;
+				break;
+			}
+		}
+		if(Target == -1)
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "can't find player with this name.");
+			return;
+		}
+		pTargetPlayer = pSelf->m_apPlayers[Target];
+		if(!pTargetPlayer)
+		return;
+		if(!pTargetPlayer->m_IsLoged)//if players loged in
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "the player is not connected to any accounts");
+			return;
+		}
+		mem_zero(abuff, sizeof(abuff));
+		str_format(abuff, sizeof(abuff), "%s have %llu in his bank account.", pSelf->Server()->ClientName(Target),pTargetPlayer->ReadMoney());
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+		break;
+
+		case 2://send money from the player account to the target account
+		CSkyb *skyb;
+		if(!(skyb->IsNumberString(pResult->GetString(1))))//check if the arguments is numbers
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "failed. try /bank [playername] [money]");
+			return;
+		}
+		if(str_length(pResult->GetString(1)) > 9)//check if the arguments is in range
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "too much money to gift. try something smaller.");
+			return;
+		}
+
+		int MoneyGift = std::stoi(pResult->GetString(1));
+		if(MoneyGift <= 0)//check if the gift is more than zero
+		{
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "pick a positive number as gift.");
+			return;
+		}
+		str_copy(pName ,pResult->GetString(0));
+		for(int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if(!str_comp(pName, pSelf->Server()->ClientName(i)))
+			{
+				Target = i;
+				break;
+			}
+		}
+			if(Target == -1)
+			{
+				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "can't find player with this name.");
+				return;
+			}
+			if(Target == ClientID)//check if the player not gifting himself
+			{
+				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "you can't send gift to yourselfe.");
+				return;
+			}
+			pTargetPlayer = pSelf->m_apPlayers[Target];
+			if(!pTargetPlayer)
+			return;
+			if(!pTargetPlayer->m_IsLoged)//if players loged in
+			{
+				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "the player is not connected to any accounts");
+				return;
+			}
+			if(pPlayer->ReadMoney() == 0)//if gift is not zero
+			{
+				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "your fucking account is empty 0__0");
+				return;
+			}
+			if(MoneyGift > pPlayer->ReadMoney())
+			{
+				mem_zero(abuff, sizeof(abuff));
+				str_format(abuff, sizeof(abuff), "give an smaller gift. your money: %llu", pPlayer->ReadMoney());
+				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+				return;
+			}
+			if(str_comp(pPlayer->m_Account.m_aUsername, pTargetPlayer->m_Account.m_aUsername) == 0)//if the players on the same accounts
+			{
+				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "you two stupid players are in the same account O__o");
+				return;
+			}
+			pPlayer->ChangeMoney(MoneyGift * -1);
+			pTargetPlayer->ChangeMoney(MoneyGift);
+
+			mem_zero(abuff, sizeof(abuff));
+			str_format(abuff, sizeof(abuff), "you gifted %s %d.", pName, MoneyGift);
+			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+
+			mem_zero(abuff, sizeof(abuff));
+			str_format(abuff, sizeof(abuff), "%s gifted you %d.", pSelf->Server()->ClientName(Target), MoneyGift);
+			pSelf->SendChatTarget(Target, abuff);
+
+
+		break;
+
+
+	}
+
+
 }

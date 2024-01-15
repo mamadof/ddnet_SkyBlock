@@ -73,5 +73,7 @@ CHAT_COMMAND("kill", "", CFGFLAG_CHAT | CFGFLAG_SERVER, ConProtectedKill, this, 
 //my stuff
 CHAT_COMMAND("register", "s[username] s[password]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConRegister, this, "Register a bank accout to save or deposit your money.")
 CHAT_COMMAND("login", "s[username] s[password]", CFGFLAG_CHAT | CFGFLAG_SERVER, Conlogin, this, "login to your bank account.")
-CHAT_COMMAND("test", "?s[anything1]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTest, this, "for testing stuff.")
+CHAT_COMMAND("test", "?s[anything]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConTest, this, "for testing stuff.")
+CHAT_COMMAND("bank", "?s[player name] ?i[Money]", CFGFLAG_CHAT | CFGFLAG_SERVER, ConBank, this, "information about the bank account and money transaction")
+
 #undef CHAT_COMMAND

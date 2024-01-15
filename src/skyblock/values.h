@@ -21,6 +21,8 @@ class CSkyb
 {
     public:
     bool IsStandardString(const char *pStr);
+    bool IsNumberString(const char *pStr);
+
 
 
 };
