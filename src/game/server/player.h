@@ -37,7 +37,6 @@ class CPlayer
 public:
 	//My stuff
 
-	void BroadCastUpgrades();
 	int my_score = 0;
 
 	bool m_IsLoged;

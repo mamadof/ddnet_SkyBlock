@@ -147,16 +147,16 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 		switch (my_SwitchNumber)
 		{
 			case 21: //Jetpack Upgrades
-			if(!pChr->m_PriceShown  && pChr->m_Jetpack_Ups != mc_Jetpack_Up_Max)
+			if(!pChr->m_PriceShown  && pChr->m_Jetpack_Ups != NSkyb::JETPACK_UPGRADE_MAX)
 			{
-				pChr->PrintThePrice(mc_Jetpack_Up_Price);
+				pChr->PrintThePrice(NSkyb::JETPACK_UPGRADE_PRICE);
 			}
-			else if(pChr->m_Jetpack_Ups == mc_Jetpack_Up_Max && !pChr->m_MaximumShown)
+			else if(pChr->m_Jetpack_Ups == NSkyb::JETPACK_UPGRADE_MAX && !pChr->m_MaximumShown)
 			{
 				GameServer()->SendBroadcast("Maximum jetpack upgrades !", ClientID);
 				pChr->m_MaximumShown = true;
 			}
-			if(pPlayer->my_score >= mc_Jetpack_Up_Price && pChr->m_Jetpack_Ups < mc_Jetpack_Up_Max && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed)
+			if(pPlayer->my_score >= NSkyb::JETPACK_UPGRADE_PRICE && pChr->m_Jetpack_Ups < NSkyb::JETPACK_UPGRADE_MAX && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed)
 			{
 				pChr->m_Jetpack_Ups++;
 				if(pChr->m_Jetpack_Ups == 1)
@@ -166,87 +166,79 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 				else
 				{
 					pChr->m_CharJetpackStrenght += 21;
-					pPlayer->my_score -= mc_Jetpack_Up_Price;
+					pPlayer->my_score -= NSkyb::JETPACK_UPGRADE_PRICE;
 				}
 
 				pChr->m_Buyed = true;
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
 				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
-				// GameServer()->CreateDamageInd(pChr->Core()->m_Pos, 3.44, pChr->m_Jetpack_Ups);
-				// pPlayer->BroadCastUpgrades();
 			}
 			break;
 
 			case 22: //Jump Upgrades
-			if(!pChr->m_PriceShown  && pChr->m_Jump_Ups != mc_Jump_Up_Max){
-				pChr->PrintThePrice(mc_Jump_Up_Price);
+			if(!pChr->m_PriceShown  && pChr->m_Jump_Ups != NSkyb::JUMP_UPGRADE_MAX){
+				pChr->PrintThePrice(NSkyb::JUMP_UPGRADE_PRICE);
 			}
-			else if(pChr->m_Jump_Ups == mc_Jump_Up_Max && !pChr->m_MaximumShown)
+			else if(pChr->m_Jump_Ups == NSkyb::JUMP_UPGRADE_MAX && !pChr->m_MaximumShown)
 			{
 				GameServer()->SendBroadcast("Maximum jump upgrades !", ClientID);
 				pChr->m_MaximumShown = true;
 			}
-			if((pPlayer->my_score >= mc_Jump_Up_Price) && (pChr->m_Jump_Ups < mc_Jump_Up_Max && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed))
+			if((pPlayer->my_score >= NSkyb::JUMP_UPGRADE_PRICE) && (pChr->m_Jump_Ups < NSkyb::JUMP_UPGRADE_MAX && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed))
 			{	
 				pChr->m_Jump_Ups++;
 				pChr->Core()->m_Jumps++;
-				pPlayer->my_score -= mc_Jump_Up_Price;
+				pPlayer->my_score -= NSkyb::JUMP_UPGRADE_PRICE;
 				pChr->m_Buyed = true;
 
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
 				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
-				// GameServer()->CreateDamageInd(pChr->Core()->m_Pos, 3.44, pChr->m_Jump_Ups);
-				// pPlayer->BroadCastUpgrades();
 
 
 			}
 			break;
 
 			case 23: //Hook upgrade
-			if(!pChr->m_PriceShown && pChr->m_Hook_Ups != mc_Hook_Up_Max){
-				pChr->PrintThePrice(mc_Hook_Up_Price);
+			if(!pChr->m_PriceShown && pChr->m_Hook_Ups != NSkyb::HOOK_UPGRADE_MAX){
+				pChr->PrintThePrice(NSkyb::HOOK_UPGRADE_PRICE);
 				pChr->m_PriceShown = true;
 
-			}else if(pChr->m_Hook_Ups == mc_Hook_Up_Max && !pChr->m_MaximumShown){
+			}else if(pChr->m_Hook_Ups == NSkyb::HOOK_UPGRADE_MAX && !pChr->m_MaximumShown){
 				GameServer()->SendBroadcast("Maximum hook upgrades !", ClientID);
 				pChr->m_MaximumShown = true;
 			}
-			if(pPlayer->my_score >= mc_Hook_Up_Price && pChr->m_Hook_Ups < mc_Hook_Up_Max && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed){
+			if(pPlayer->my_score >= NSkyb::HOOK_UPGRADE_PRICE && pChr->m_Hook_Ups < NSkyb::HOOK_UPGRADE_MAX && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed){
 
 				pChr->m_Hook_Ups++;
-				pPlayer->my_score -= mc_Hook_Up_Price;
+				pPlayer->my_score -= NSkyb::HOOK_UPGRADE_PRICE;
 				pChr->m_Buyed = true;
 
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
 				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
-				// GameServer()->CreateDamageInd(pChr->Core()->m_Pos, 3.44, pChr->m_Hook_Ups);
-				// pPlayer->BroadCastUpgrades();
 			}
 			break;
 
 			case 24://ExtraLives
-			if(!pChr->m_PriceShown && pChr->m_ExtraLives != MAX_EXTRA_LIVES){
-				pChr->PrintThePrice(PRICE_EXTRA_LIVES);
+			if(!pChr->m_PriceShown && pChr->m_ExtraLives != NSkyb::EXTRALIFE_UPGRADE_MAX){
+				pChr->PrintThePrice(NSkyb::EXTRALIFE_UPGRADE_PRICE);
 				pChr->m_PriceShown = true;
 
-			}else if(pChr->m_ExtraLives >= MAX_EXTRA_LIVES && !pChr->m_MaximumShown){
+			}else if(pChr->m_ExtraLives >= NSkyb::EXTRALIFE_UPGRADE_MAX && !pChr->m_MaximumShown){
 				GameServer()->SendBroadcast("Maximum Extra Lives !", ClientID);
 				pChr->m_MaximumShown = true;
 			}
-			if(pPlayer->my_score >= PRICE_EXTRA_LIVES && pChr->m_ExtraLives < MAX_EXTRA_LIVES && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed){
+			if(pPlayer->my_score >= NSkyb::EXTRALIFE_UPGRADE_PRICE && pChr->m_ExtraLives < NSkyb::EXTRALIFE_UPGRADE_MAX && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed){
 
 				pChr->m_ExtraLives++;
-				pPlayer->my_score -= PRICE_EXTRA_LIVES;
+				pPlayer->my_score -= NSkyb::EXTRALIFE_UPGRADE_PRICE;
 				pChr->m_Buyed = true;
 
 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
 				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
-				// GameServer()->CreateDamageInd(pChr->Core()->m_Pos, 3.44, pChr->m_Hook_Ups);
-				// pPlayer->BroadCastUpgrades();
 			}
 			break;
 
@@ -413,6 +405,7 @@ void CGameControllerDDRace::Tick()
 		if(pChr)
 		{
 			ClientID = pChr->GetPlayer()->GetCID();
+			CPlayer *pPlayer = pChr->GetPlayer();
 			// GameServer()->SendChatTarget(ClientID, GameServer()->m_apPlayers[ClientID]->m_Account.m_Username);	
 			
 			//hooking score stuff
@@ -438,6 +431,12 @@ void CGameControllerDDRace::Tick()
 			{
 				pChr->m_UsedHookUps = pChr->HookTimeUpPerUpgrade * pChr->m_Hook_Ups;
 			}
+
+
+			//testing
+			// str_format(abuff, sizeof(abuff), "CLients: %d", Server()->ClientCount());
+			// GameServer()->SendBroadcast(abuff, ClientID);
+
 		}
 	}
 

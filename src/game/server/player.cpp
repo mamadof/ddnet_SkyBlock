@@ -958,16 +958,6 @@ void CPlayer::ProcessScoreResult(CScorePlayerResult &Result)
 	}
 }
 //my stuff
-void CPlayer::BroadCastUpgrades()
-{
-	if(m_pCharacter)
-	{
-		char abuff[100];
-		str_format(abuff, sizeof(abuff), "Jetpack %d  Jumps %d  Hook %d", m_pCharacter->m_Jetpack_Ups, m_pCharacter->m_Jump_Ups, m_pCharacter->m_Hook_Ups);
-		m_pGameServer->SendBroadcast(abuff, m_ClientID);
-	}
-	
-}
 //reads the players money
 long long unsigned int CPlayer::ReadMoney()
 {

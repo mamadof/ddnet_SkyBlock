@@ -2101,6 +2101,10 @@ void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)//for tes
 		mem_zero(abuff, sizeof(abuff));
 		str_format(abuff, sizeof(abuff), "%s have %llu in his bank account.", pSelf->Server()->ClientName(Target),pTargetPlayer->ReadMoney());
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+
+		mem_zero(abuff, sizeof(abuff));
+		str_format(abuff, sizeof(abuff), "%s have noticed your money in bank.", pSelf->Server()->ClientName(ClientID));
+		pSelf->SendChatTarget(Target, abuff);
 		break;
 
 		case 2://send money from the player account to the target account
