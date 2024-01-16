@@ -1003,57 +1003,40 @@ bool CCharacter::IncreaseArmor(int Amount)
 void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 {
 	//my stuff
-	if(m_ExtraLives && m_pPlayer)
-	{
-		ExtraLives();
-		return;
-	}
-	m_pPlayer->my_score -= 3;
-
-
 	PlayerKillerTimeOut();
+	CPlayer *pKillerPlayer;
+
+
+
 	if(m_Killer.m_ID != -1 && GameServer()->m_apPlayers[m_Killer.m_ID])
 	{
+		pKillerPlayer = GameServer()->m_apPlayers[m_Killer.m_ID];
 		Killer = m_Killer.m_ID;
 		Weapon = m_Killer.m_Weapon;
 		if(Weapon == WEAPON_WORLD)
 		{
 			Weapon = WEAPON_NINJA;
 		}
-		int gain;
-		int TotalHeats = m_Heat;
-
-		CCharacter *KillerChr;
-		KillerChr = GameServer()->m_apPlayers[Killer]->GetCharacter();
-
-		if(m_pPlayer->GetCID() == m_Killer.m_ID)//self kill
+		if(m_ExtraLives)
 		{
-			m_pPlayer->my_score -= 0;
+			if(Killer != m_pPlayer->GetCID())
+			{
+				pKillerPlayer->my_score += Worth()*0.7;
+			}
+			ExtraLives();
+			return;
 		}
-		else if(KillerChr)//some one kills you
+		if(Killer != m_pPlayer->GetCID())//giving the money and stuff to killer
 		{
-			KillerChr->m_Heat++;
-			KillerChr->m_LastHeatTick = Server()->Tick();
-			TotalHeats += KillerChr->m_Heat + m_Heat;
+				pKillerPlayer->my_score += Worth();
 		}
-		if (TotalHeats >= 2)
-		{
-			gain = (5 + (m_pPlayer->my_score / 15) + (5 * (m_Hook_Ups+m_Jetpack_Ups+m_Jump_Ups))) * TotalHeats;
-			GameServer()->m_apPlayers[Killer]->my_score += gain;
-			m_pPlayer->my_score -= (6 + (m_pPlayer->my_score / 11));
-		}
-		else
-		{
-			gain = (5 + (m_pPlayer->my_score / 10) + (5 * (m_Hook_Ups+m_Jetpack_Ups+m_Jump_Ups)));
-			GameServer()->m_apPlayers[Killer]->my_score += gain;
-			m_pPlayer->my_score -= (6 + (m_pPlayer->my_score / 15));
-		}
-		// char abuff[100];
-		// str_format(abuff, sizeof(abuff), "heat: %d", Heats);
-		// GameServer()->SendBroadcast(abuff, Killer);
-		// give score to killer
-		// if((m_SpawnTick + 100) > Server()->Tick())
 	}
+	if(m_ExtraLives && !GameServer()->m_apPlayers[m_Killer.m_ID])
+	{
+		ExtraLives();
+		return;
+	}
+	
 
 	if(Server()->IsRecording(m_pPlayer->GetCID()))
 	{
@@ -2566,4 +2549,12 @@ void CCharacter::RetractAttachedHooks()
 				pChr->m_Core.m_HookState = HOOK_RETRACT_START;
 			}
 		}
+}
+//get the total worth of a player when it's going to be killed
+unsigned int CCharacter::Worth()
+{
+	unsigned int TeeWorth = 21;//a worth of tee without anything
+	unsigned int TotalMoneySpend;
+	TotalMoneySpend = (m_JetpackUps * NSkyb::JETPACK_UPGRADE_PRICE + m_JumpUps * NSkyb::JUMP_UPGRADE_PRICE + m_HookUps * NSkyb::HOOK_UPGRADE_PRICE + m_ExtraLifeBuyed * NSkyb::EXTRALIFE_UPGRADE_PRICE);
+	return TotalMoneySpend + TeeWorth;
 }

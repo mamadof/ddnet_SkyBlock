@@ -38,6 +38,7 @@ public:
 		int m_LastTick;
 		int m_Weapon;
 	}m_Killer;
+	unsigned int Worth();
 	void PlayerKillerTimeOut();
 	int m_TickInFarm = 0;
 	float m_DamageIndicaterCircle;
@@ -45,7 +46,8 @@ public:
 	int m_LastHeatTick;
 	bool m_OverHeat;
 
-	int m_ExtraLives;	
+	unsigned int m_ExtraLifeBuyed;
+	unsigned int m_ExtraLives;	
 	void ExtraLives();
 	bool m_UnfreezeNeeded;
 	void RetractAttachedHooks();
@@ -59,9 +61,10 @@ public:
 	bool m_Buyed = false;
 	bool m_Fire;
 
-	int m_Hook_Ups = 0;
-	int m_Jetpack_Ups = 0;
-	int m_Jump_Ups = 0;
+	int m_HookUps = 0;
+	int m_JetpackUps = 0;
+	int m_JumpUps = 0;
+
 
 	int HookTimeUpTick = 0;// hook time 1.25 converted to tick()
 	int HookTimeUpPerUpgrade = 50;

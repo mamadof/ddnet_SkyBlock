@@ -4,19 +4,6 @@
 
 #include <game/server/gamecontroller.h>
 
-//My Stuff
-	const int mc_Jetpack_Up_Price = 21;
-	const int mc_Hook_Up_Price = 27;
-	const int mc_Jump_Up_Price = 36;
-
-
-	const int mc_Jetpack_Up_Max = 4;
-	const int mc_Hook_Up_Max = 3;
-	const int mc_Jump_Up_Max = 2;
-
-	const int MAX_EXTRA_LIVES = 1;
-	const int PRICE_EXTRA_LIVES = 300;
-
 
 class CGameControllerDDRace : public IGameController
 {

@@ -39,6 +39,7 @@ public:
 
 	int my_score = 0;
 
+	//banking
 	bool m_IsLoged;
 	struct CAccount
 	{

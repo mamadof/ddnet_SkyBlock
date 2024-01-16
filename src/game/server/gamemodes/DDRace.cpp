@@ -147,21 +147,22 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 		switch (my_SwitchNumber)
 		{
 			case 21: //Jetpack Upgrades
-			if(!pChr->m_PriceShown  && pChr->m_Jetpack_Ups != NSkyb::JETPACK_UPGRADE_MAX)
+			if(!pChr->m_PriceShown  && pChr->m_JetpackUps != NSkyb::JETPACK_UPGRADE_MAX)
 			{
 				pChr->PrintThePrice(NSkyb::JETPACK_UPGRADE_PRICE);
 			}
-			else if(pChr->m_Jetpack_Ups == NSkyb::JETPACK_UPGRADE_MAX && !pChr->m_MaximumShown)
+			else if(pChr->m_JetpackUps == NSkyb::JETPACK_UPGRADE_MAX && !pChr->m_MaximumShown)
 			{
 				GameServer()->SendBroadcast("Maximum jetpack upgrades !", ClientID);
 				pChr->m_MaximumShown = true;
 			}
-			if(pPlayer->my_score >= NSkyb::JETPACK_UPGRADE_PRICE && pChr->m_Jetpack_Ups < NSkyb::JETPACK_UPGRADE_MAX && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed)
+			if(pPlayer->my_score >= NSkyb::JETPACK_UPGRADE_PRICE && pChr->m_JetpackUps < NSkyb::JETPACK_UPGRADE_MAX && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed)
 			{
-				pChr->m_Jetpack_Ups++;
-				if(pChr->m_Jetpack_Ups == 1)
+				pChr->m_JetpackUps++;
+				if(pChr->m_JetpackUps == 1)
 				{
 					pChr->Core()->m_Jetpack = true;
+					pPlayer->my_score -= NSkyb::JETPACK_UPGRADE_PRICE;
 				}
 				else
 				{
@@ -177,17 +178,17 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 			break;
 
 			case 22: //Jump Upgrades
-			if(!pChr->m_PriceShown  && pChr->m_Jump_Ups != NSkyb::JUMP_UPGRADE_MAX){
+			if(!pChr->m_PriceShown  && pChr->m_JumpUps != NSkyb::JUMP_UPGRADE_MAX){
 				pChr->PrintThePrice(NSkyb::JUMP_UPGRADE_PRICE);
 			}
-			else if(pChr->m_Jump_Ups == NSkyb::JUMP_UPGRADE_MAX && !pChr->m_MaximumShown)
+			else if(pChr->m_JumpUps == NSkyb::JUMP_UPGRADE_MAX && !pChr->m_MaximumShown)
 			{
 				GameServer()->SendBroadcast("Maximum jump upgrades !", ClientID);
 				pChr->m_MaximumShown = true;
 			}
-			if((pPlayer->my_score >= NSkyb::JUMP_UPGRADE_PRICE) && (pChr->m_Jump_Ups < NSkyb::JUMP_UPGRADE_MAX && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed))
+			if((pPlayer->my_score >= NSkyb::JUMP_UPGRADE_PRICE) && (pChr->m_JumpUps < NSkyb::JUMP_UPGRADE_MAX && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed))
 			{	
-				pChr->m_Jump_Ups++;
+				pChr->m_JumpUps++;
 				pChr->Core()->m_Jumps++;
 				pPlayer->my_score -= NSkyb::JUMP_UPGRADE_PRICE;
 				pChr->m_Buyed = true;
@@ -201,17 +202,17 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 			break;
 
 			case 23: //Hook upgrade
-			if(!pChr->m_PriceShown && pChr->m_Hook_Ups != NSkyb::HOOK_UPGRADE_MAX){
+			if(!pChr->m_PriceShown && pChr->m_HookUps != NSkyb::HOOK_UPGRADE_MAX){
 				pChr->PrintThePrice(NSkyb::HOOK_UPGRADE_PRICE);
 				pChr->m_PriceShown = true;
 
-			}else if(pChr->m_Hook_Ups == NSkyb::HOOK_UPGRADE_MAX && !pChr->m_MaximumShown){
+			}else if(pChr->m_HookUps == NSkyb::HOOK_UPGRADE_MAX && !pChr->m_MaximumShown){
 				GameServer()->SendBroadcast("Maximum hook upgrades !", ClientID);
 				pChr->m_MaximumShown = true;
 			}
-			if(pPlayer->my_score >= NSkyb::HOOK_UPGRADE_PRICE && pChr->m_Hook_Ups < NSkyb::HOOK_UPGRADE_MAX && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed){
+			if(pPlayer->my_score >= NSkyb::HOOK_UPGRADE_PRICE && pChr->m_HookUps < NSkyb::HOOK_UPGRADE_MAX && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed){
 
-				pChr->m_Hook_Ups++;
+				pChr->m_HookUps++;
 				pPlayer->my_score -= NSkyb::HOOK_UPGRADE_PRICE;
 				pChr->m_Buyed = true;
 
@@ -233,6 +234,7 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 			if(pPlayer->my_score >= NSkyb::EXTRALIFE_UPGRADE_PRICE && pChr->m_ExtraLives < NSkyb::EXTRALIFE_UPGRADE_MAX && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed){
 
 				pChr->m_ExtraLives++;
+				pChr->m_ExtraLifeBuyed++;
 				pPlayer->my_score -= NSkyb::EXTRALIFE_UPGRADE_PRICE;
 				pChr->m_Buyed = true;
 
@@ -423,13 +425,13 @@ void CGameControllerDDRace::Tick()
 
 			
 			//HookUps
-			if(pChr->m_Hook_Ups && (pChr->Core()->HookedPlayer() != -1) && pChr->m_UsedHookUps)
+			if(pChr->m_HookUps && (pChr->Core()->HookedPlayer() != -1) && pChr->m_UsedHookUps)
 			{
 				pChr->Core()->m_HookTick--;
 				pChr->m_UsedHookUps--;
-			}else if(pChr->m_UsedHookUps <= (pChr->m_UsedHookUps *pChr->m_Hook_Ups) && pChr->Core()->HookedPlayer() == -1)
+			}else if(pChr->m_UsedHookUps <= (pChr->m_UsedHookUps *pChr->m_HookUps) && pChr->Core()->HookedPlayer() == -1)
 			{
-				pChr->m_UsedHookUps = pChr->HookTimeUpPerUpgrade * pChr->m_Hook_Ups;
+				pChr->m_UsedHookUps = pChr->HookTimeUpPerUpgrade * pChr->m_HookUps;
 			}
 
 
