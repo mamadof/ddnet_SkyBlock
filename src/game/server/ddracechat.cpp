@@ -2192,10 +2192,12 @@ void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)//for tes
 
 void CGameContext::ConTest(IConsole::IResult *pResult, void *pUserData)//for testing stuff
 {
-	return;
 	CSkyb *skyb;
 	CGameContext *pSelf = (CGameContext *)pUserData;
 	if(!CheckClientID(pResult->m_ClientID))
 	return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	pPlayer->my_score = 0;
 
 }

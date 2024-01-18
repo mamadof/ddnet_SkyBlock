@@ -324,6 +324,12 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 				pChr->m_Killer.m_ID = Owner;
 				pChr->m_Killer.m_Weapon = WEAPON_GRENADE;
 				pChr->m_Killer.m_LastTick = Server()->Tick();
+				if(!pChr->Core()->m_FreezeStart)
+				{
+					pChr->m_Freezer.m_ID = Owner;
+					pChr->m_Freezer.m_Weapon = WEAPON_GRENADE;
+					pChr->m_Freezer.m_LastTick = Server()->Tick();
+				}
 		}
 	}
 }

@@ -57,9 +57,17 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	{
 		//my stuff
 		if(pHit)
+		{
 			pHit->m_Killer.m_ID = m_Owner;
 			pHit->m_Killer.m_Weapon = WEAPON_SHOTGUN;
 			pHit->m_Killer.m_LastTick = Server()->Tick();
+			if(!pHit->Core()->m_FreezeStart)
+			{
+				pHit->m_Freezer.m_ID = m_Owner;
+				pHit->m_Freezer.m_Weapon = WEAPON_SHOTGUN;
+				pHit->m_Freezer.m_LastTick = Server()->Tick();
+			}
+		}
 
 		vec2 Temp;
 

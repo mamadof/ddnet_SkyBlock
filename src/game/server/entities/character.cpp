@@ -276,7 +276,7 @@ void CCharacter::HandleNinja()
 		// check if we Hit anything along the way
 		{
 			CEntity *apEnts[MAX_CLIENTS];
-			float Radius = GetProximityRadius() * 2.0f;
+			float Radius = GetProximityRadius() * 10.0f;
 			int Num = GameServer()->m_World.FindEntities(OldPos, Radius, apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 
 			// check that we're not in solo part
@@ -323,6 +323,12 @@ void CCharacter::HandleNinja()
 				pChr->m_Killer.m_ID = GetPlayer()->GetCID();
 				pChr->m_Killer.m_Weapon = WEAPON_NINJA;
 				pChr->m_Killer.m_LastTick = Server()->Tick();
+				if(!pChr->Core()->m_FreezeStart)
+				{
+					pChr->m_Freezer.m_ID = GetPlayer()->GetCID();
+					pChr->m_Freezer.m_Weapon = WEAPON_NINJA;
+					pChr->m_Freezer.m_LastTick = Server()->Tick();
+				}
 				
 			}
 		}
@@ -500,6 +506,12 @@ void CCharacter::FireWeapon()
 				pTarget->m_Killer.m_ID = GetPlayer()->GetCID();
 				pTarget->m_Killer.m_Weapon = WEAPON_HAMMER;
 				pTarget->m_Killer.m_LastTick = Server()->Tick();
+				if(!pTarget->Core()->m_FreezeStart)
+				{
+					pTarget->m_Freezer.m_ID = GetPlayer()->GetCID();
+					pTarget->m_Freezer.m_Weapon = WEAPON_HAMMER;
+					pTarget->m_Freezer.m_LastTick = Server()->Tick();
+				}
 
 			if(m_FreezeHammer)
 				pTarget->Freeze();
@@ -809,11 +821,19 @@ void CCharacter::Tick()
 	}
 
 	//give credit on hook
+	
 	if(Core()->HookedPlayer() != -1 && GameServer()->m_apPlayers[Core()->HookedPlayer()]->GetCharacter())
 	{
-		GameServer()->m_apPlayers[Core()->HookedPlayer()]->GetCharacter()->m_Killer.m_ID = m_pPlayer->GetCID();
-		GameServer()->m_apPlayers[Core()->HookedPlayer()]->GetCharacter()->m_Killer.m_Weapon = WEAPON_WORLD;
-		GameServer()->m_apPlayers[Core()->HookedPlayer()]->GetCharacter()->m_Killer.m_LastTick = Server()->Tick();
+		CCharacter *pTargetChar = GameServer()->m_apPlayers[Core()->HookedPlayer()]->GetCharacter();
+		pTargetChar->m_Killer.m_ID = m_pPlayer->GetCID();
+		pTargetChar->m_Killer.m_Weapon = WEAPON_WORLD;
+		pTargetChar->m_Killer.m_LastTick = Server()->Tick();
+		if(!pTargetChar->Core()->m_FreezeStart)
+		{
+			pTargetChar->m_Freezer.m_ID = GetPlayer()->GetCID();
+			pTargetChar->m_Freezer.m_Weapon = WEAPON_WORLD;
+			pTargetChar->m_Freezer.m_LastTick = Server()->Tick();
+		}
 	}
 	
 	m_Fire = (GetInput()->m_Fire % 2 == 1);
@@ -1017,18 +1037,38 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 		{
 			Weapon = WEAPON_NINJA;
 		}
+		if(m_Freezer.m_ID == -1 || !GameServer()->m_apPlayers[m_Freezer.m_ID])
+		{
+			m_Freezer.m_ID = Killer;
+		}
 		if(m_ExtraLives)
 		{
+			if(m_Freezer.m_ID != m_pPlayer->GetCID() && m_Freezer.m_ID != -1)//the player who freezeed you
+			{
+				if(GameServer()->m_apPlayers[m_Freezer.m_ID])
+				{
+					GameServer()->m_apPlayers[m_Freezer.m_ID]->my_score += Worth()*0.55;
+				}
+			}
 			if(Killer != m_pPlayer->GetCID())
 			{
-				pKillerPlayer->my_score += Worth()*0.7;
+				pKillerPlayer->my_score += Worth()*0.15;
 			}
 			ExtraLives();
 			return;
 		}
+		if(m_Freezer.m_ID != m_pPlayer->GetCID())//the player who freezeed you
+		{
+			if(GameServer()->m_apPlayers[m_Freezer.m_ID] && m_Freezer.m_ID != -1)
+			{
+				dbg_msg("killers", "this mf called");
+				GameServer()->m_apPlayers[m_Freezer.m_ID]->my_score += Worth()*0.7;
+				dbg_msg("killers", "after this mf called");
+			}
+		}
 		if(Killer != m_pPlayer->GetCID())//giving the money and stuff to killer
 		{
-				pKillerPlayer->my_score += Worth();
+				pKillerPlayer->my_score += Worth()*0.3;
 		}
 	}
 	if(m_ExtraLives && !GameServer()->m_apPlayers[m_Killer.m_ID])
@@ -2523,9 +2563,13 @@ void CCharacter::PrintThePrice(int Price)
 }
 void CCharacter::PlayerKillerTimeOut()
 {
-	if(m_Killer.m_ID != -1 &&  (Server()->Tick() - m_Killer.m_LastTick) > 300 )
+	if(m_Killer.m_ID != -1 &&  (Server()->Tick() - m_Killer.m_LastTick) > 300 )//the killer timeout
 	{
 		m_Killer.m_ID = -1;
+	}
+	if(m_Freezer.m_ID != -1 &&  (Server()->Tick() - m_Freezer.m_LastTick) > 3000 )//the freezer timeout
+	{
+		m_Freezer.m_ID = -1;
 	}
 }
 void CCharacter::ExtraLives()

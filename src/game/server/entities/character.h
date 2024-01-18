@@ -38,6 +38,11 @@ public:
 		int m_LastTick;
 		int m_Weapon;
 	}m_Killer;
+	struct {
+		int m_ID = -1;
+		int m_LastTick;
+		int m_Weapon;
+	}m_Freezer;
 	unsigned int Worth();
 	void PlayerKillerTimeOut();
 	int m_TickInFarm = 0;

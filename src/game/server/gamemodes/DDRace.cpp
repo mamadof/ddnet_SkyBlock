@@ -435,10 +435,10 @@ void CGameControllerDDRace::Tick()
 			}
 
 
-			//testing
-			// str_format(abuff, sizeof(abuff), "CLients: %d", Server()->ClientCount());
+			// CNetObj_PlayerInput *input = pChr->GetInput();
+			// testing
+			// str_format(abuff, sizeof(abuff), "IsInFreeze:%d FreezeStart: %d", pChr->Core()->m_IsInFreeze, pChr->Core()->m_FreezeStart);
 			// GameServer()->SendBroadcast(abuff, ClientID);
-
 		}
 	}
 
