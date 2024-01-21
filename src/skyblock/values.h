@@ -3,7 +3,7 @@
 #define SKYBLOCK_VALUES_H
 
 //number of debug dummies
-#define DEBUG_DUMMIES_NUMBER 12
+#define DEBUG_DUMMIES_NUMBER 64
 
 namespace NSkyb {
     enum{
@@ -28,7 +28,6 @@ namespace NSkyb {
 
 
     };
-    constexpr unsigned int helloeskljdf = 1000;
 }
 class CSkyb
 {

@@ -445,7 +445,7 @@ void CGameContext::SnapSwitchers(int SnappingClient)
 }
 
 bool CGameContext::SnapLaserObject(const CSnapContext &Context, int SnapID, const vec2 &To, const vec2 &From, int StartTick, int Owner, int LaserType, int Subtype, int SwitchNumber) const
-{
+{	
 	if(Context.GetClientVersion() >= VERSION_DDNET_MULTI_LASER)
 	{
 		CNetObj_DDNetLaser *pObj = Server()->SnapNewItem<CNetObj_DDNetLaser>(SnapID);

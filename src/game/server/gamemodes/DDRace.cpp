@@ -435,6 +435,48 @@ void CGameControllerDDRace::Tick()
 			}
 
 
+			// if((pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire )
+			// {
+
+			// }
+
+				// CProjectile *pProj = new CProjectile(
+				// 					&GameServer()->m_World,
+				// 					WEAPON_SHOTGUN,
+				// 					ClientID,
+				// 					pChr->Core()->m_Pos,
+				// 					vec2(0,0),
+				// 					200,
+				// 					false,
+				// 					false,
+				// 					-1,
+				// 					vec2(0,0),
+				// 					0,
+				// 					0);
+
+
+				// CNetObj_Projectile *pNetProj = new CNetObj_Projectile;
+
+				// if(Server()->Tick() % Server()->TickSpeed() == 0)
+				// {
+				// int m_ProjID = Server()->SnapNewID();
+				// CNetObj_Projectile *m_pProj = Server()->SnapNewItem<CNetObj_Projectile>(m_ProjID);
+
+				// // m_pProj->m_X = pChr->Core()->m_Pos.x;
+				// // m_pProj->m_Y = pChr->Core()->m_Pos.y-30;
+				// // m_pProj->m_StartTick = Server()->Tick() -3;
+				// // m_pProj->m_Type = WEAPON_SHOTGUN;
+				// // m_pProj->m_VelX = 1;
+				// // m_pProj->m_VelY = 1;
+				// 	m_pProj->m_X = (int)pChr->Core()->m_Pos.x;
+				// 	m_pProj->m_Y = (int)pChr->Core()->m_Pos.y-30;
+				// 	m_pProj->m_VelX = (int)(1 * 100.0f);
+				// 	m_pProj->m_VelY = (int)(-1 * 100.0f);
+				// 	m_pProj->m_StartTick = Server()->Tick();
+				// 	m_pProj->m_Type = 3;
+				// }
+
+
 			// CNetObj_PlayerInput *input = pChr->GetInput();
 			// testing
 			// str_format(abuff, sizeof(abuff), "IsInFreeze:%d FreezeStart: %d", pChr->Core()->m_IsInFreeze, pChr->Core()->m_FreezeStart);
