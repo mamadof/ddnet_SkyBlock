@@ -3,7 +3,7 @@
 #define SKYBLOCK_VALUES_H
 
 //number of debug dummies
-#define DEBUG_DUMMIES_NUMBER 64
+#define DEBUG_DUMMIES_NUMBER 6
 
 namespace NSkyb {
     enum{
