@@ -2178,7 +2178,7 @@ void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)//for tes
 			pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
 
 			mem_zero(abuff, sizeof(abuff));
-			str_format(abuff, sizeof(abuff), "%s gifted you %d.", pSelf->Server()->ClientName(Target), MoneyGift);
+			str_format(abuff, sizeof(abuff), "%s gifted you %d.", pSelf->Server()->ClientName(ClientID), MoneyGift);
 			pSelf->SendChatTarget(Target, abuff);
 
 
