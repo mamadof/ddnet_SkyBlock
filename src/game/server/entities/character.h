@@ -29,7 +29,7 @@ class CCharacter : public CEntity
 	friend class CSaveTee; // need to use core
 
 private:
-char abuff[100];
+	char abuff[100];
 
 public:
 //My stuff
@@ -91,6 +91,10 @@ public:
 	int m_CharJetpackStrenght = 0;
 
 	bool m_IsMoneyChanged;
+
+	void ExplosionAnimation();
+	int m_ExplosionAnimationStartTick = -1;
+
 
 	CNetObj_PlayerInput *GetInput(){return &m_Input;}
 

@@ -25,6 +25,7 @@ namespace NSkyb {
         JUMP_UPGRADE_MAX = 2,
         EXTRALIFE_UPGRADE_PRICE = 300,
         EXTRALIFE_UPGRADE_MAX = 1,
+        EXTRALIFE_BUYED_MAX = 3,//make the tee explode :)
 
 
     };

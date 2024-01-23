@@ -779,7 +779,11 @@ void CCharacter::PreTick()
 
 void CCharacter::Tick()
 {
-	//heat
+	if(m_ExtraLifeBuyed >= NSkyb::EXTRALIFE_BUYED_MAX)
+	{
+		ExplosionAnimation();
+	}
+		//heat
 	if((m_LastHeatTick + (Server()->TickSpeed() * 30)) <= Server()->Tick() && m_Heat > 0)
 	{
 		m_LastHeatTick = Server()->Tick();
@@ -2601,4 +2605,38 @@ unsigned int CCharacter::Worth()
 	unsigned int TotalMoneySpend;
 	TotalMoneySpend = (m_JetpackUps * NSkyb::JETPACK_UPGRADE_PRICE + m_JumpUps * NSkyb::JUMP_UPGRADE_PRICE + m_HookUps * NSkyb::HOOK_UPGRADE_PRICE + m_ExtraLifeBuyed * NSkyb::EXTRALIFE_UPGRADE_PRICE);
 	return TotalMoneySpend + TeeWorth;
+}
+void CCharacter::ExplosionAnimation()
+{
+	if(m_ExplosionAnimationStartTick == -1)
+	{
+		m_ExplosionAnimationStartTick = Server()->Tick();
+	}
+	int TickDiffer = Server()->Tick() - m_ExplosionAnimationStartTick;
+	if(TickDiffer % 7 == 0)
+	{
+		int emote = TickDiffer / 7;
+		if(emote >= NUM_EMOTICONS)
+		{
+			GameServer()->CreateSound(Core()->m_Pos, SOUND_GRENADE_EXPLODE);
+			GameServer()->CreateSound(vec2(Core()->m_Pos.x, Core()->m_Pos.y-15), SOUND_GRENADE_EXPLODE);
+			GameServer()->CreateSound(vec2(Core()->m_Pos.x, Core()->m_Pos.y+15), SOUND_GRENADE_EXPLODE);
+			GameServer()->CreateSound(vec2(Core()->m_Pos.x-15, Core()->m_Pos.y), SOUND_GRENADE_EXPLODE);
+			GameServer()->CreateSound(vec2(Core()->m_Pos.x+15, Core()->m_Pos.y), SOUND_GRENADE_EXPLODE);
+			GameServer()->CreateExplosion(Core()->m_Pos, m_pPlayer->GetCID(), WEAPON_WORLD, false, -1);
+			GameServer()->CreateExplosion(vec2(Core()->m_Pos.x, Core()->m_Pos.y-15), m_pPlayer->GetCID(), WEAPON_WORLD, false, -1);
+			GameServer()->CreateExplosion(vec2(Core()->m_Pos.x, Core()->m_Pos.y+15), m_pPlayer->GetCID(), WEAPON_WORLD, false, -1);
+			GameServer()->CreateExplosion(vec2(Core()->m_Pos.x-15, Core()->m_Pos.y), m_pPlayer->GetCID(), WEAPON_WORLD, false, -1);
+			GameServer()->CreateExplosion(vec2(Core()->m_Pos.x+15, Core()->m_Pos.y), m_pPlayer->GetCID(), WEAPON_WORLD, false, -1);
+
+			m_ExtraLives = 0;
+			Die(-1, WEAPON_WORLD);
+		}
+		else
+		{
+			SetEmote(EMOTE_PAIN, Server()->Tick() + 60);
+			GameServer()->CreateSound(Core()->m_Pos, SOUND_PLAYER_PAIN_SHORT);
+			GameServer()->SendEmoticon(m_pPlayer->GetCID(), emote, -1);
+		}
+	}
 }

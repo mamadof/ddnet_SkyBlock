@@ -437,7 +437,7 @@ void CGameControllerDDRace::Tick()
 
 			// if((pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire )
 			// {
-
+				
 			// }
 
 				// CProjectile *pProj = new CProjectile(
