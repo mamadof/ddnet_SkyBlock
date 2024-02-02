@@ -1065,9 +1065,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 		{
 			if(GameServer()->m_apPlayers[m_Freezer.m_ID] && m_Freezer.m_ID != -1)
 			{
-				dbg_msg("killers", "this mf called");
 				GameServer()->m_apPlayers[m_Freezer.m_ID]->my_score += Worth()*0.7;
-				dbg_msg("killers", "after this mf called");
 			}
 		}
 		if(Killer != m_pPlayer->GetCID())//giving the money and stuff to killer

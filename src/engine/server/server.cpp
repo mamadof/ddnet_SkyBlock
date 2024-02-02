@@ -2686,20 +2686,20 @@ void CServer::UpdateDebugDummies(bool ForceDisconnect)
 			str_format(m_aClients[ClientID].m_aName, sizeof(m_aClients[ClientID].m_aName), "%d", DummyIndex + 1);//the name of the dummies
 			GameServer()->OnClientEnter(ClientID);
 		}
-		// else if(!AddDummy && m_aClients[ClientID].m_DebugDummy)
-		// {
-		// 	DelClientCallback(ClientID, "Dropping debug dummy", this);
-		// }
+		else if(!AddDummy && m_aClients[ClientID].m_DebugDummy)
+		{
+			DelClientCallback(ClientID, "Dropping debug dummy", this);
+		}
 
-		// if(AddDummy && m_aClients[ClientID].m_DebugDummy)
-		// {
-		// 	CNetObj_PlayerInput Input = {0};
-		// 	// Input.m_Direction = (ClientID & 1) ? -1 : 1;
-		// 	m_aClients[ClientID].m_aInputs[0].m_GameTick = Tick() + 1;
-		// 	mem_copy(m_aClients[ClientID].m_aInputs[0].m_aData, &Input, minimum(sizeof(Input), sizeof(m_aClients[ClientID].m_aInputs[0].m_aData)));
-		// 	m_aClients[ClientID].m_LatestInput = m_aClients[ClientID].m_aInputs[0];
-		// 	m_aClients[ClientID].m_CurrentInput = 0;
-		// }
+		if(AddDummy && m_aClients[ClientID].m_DebugDummy)
+		{
+			CNetObj_PlayerInput Input = {0};
+			// Input.m_Direction = (ClientID & 1) ? -1 : 1;
+			m_aClients[ClientID].m_aInputs[0].m_GameTick = Tick() + 1;
+			mem_copy(m_aClients[ClientID].m_aInputs[0].m_aData, &Input, minimum(sizeof(Input), sizeof(m_aClients[ClientID].m_aInputs[0].m_aData)));
+			m_aClients[ClientID].m_LatestInput = m_aClients[ClientID].m_aInputs[0];
+			m_aClients[ClientID].m_CurrentInput = 0;
+		}
 	}
 
 	m_PreviousDebugDummies = ForceDisconnect ? 0 : DEBUG_DUMMIES_NUMBER;

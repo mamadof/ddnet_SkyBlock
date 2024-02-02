@@ -409,6 +409,7 @@ void CGameControllerDDRace::Tick()
 			ClientID = pChr->GetPlayer()->GetCID();
 			CPlayer *pPlayer = pChr->GetPlayer();
 			// GameServer()->SendChatTarget(ClientID, GameServer()->m_apPlayers[ClientID]->m_Account.m_Username);	
+
 			
 			//hooking score stuff
 			pChrVictim = GameServer()->GetPlayerChar(pChr->Core()->HookedPlayer());
