@@ -4783,5 +4783,11 @@ void CGameContext::ExtraLiveParticle(CCharacter *pChar)
 	if(pChar)
 	{
 		CreatePlayerSpawn(pChar->Core()->m_Pos);
+		if(pChar->m_ExtraLifeBuyed == NSkyb::EXTRALIFE_BUYED_MAX -1)
+		{
+			pChar->SetEmote(EMOTE_SURPRISE, Server()->Tick() + 60);
+			CreateSound(pChar->Core()->m_Pos, SOUND_WEAPON_SPAWN);
+			SendEmoticon(pChar->GetPlayer()->GetCID(), EMOTICON_GHOST, -1);
+		}
 	}
 }

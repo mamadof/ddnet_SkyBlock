@@ -1064,6 +1064,8 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 			if(Killer != m_pPlayer->GetCID())
 			{
 				pKillerPlayer->my_score += Worth()*0.15;
+
+				pKillerPlayer->GetCharacter()->SetEmote(EMOTE_HAPPY, Server()->Tick() + 60);
 			}
 			ExtraLives();
 			return;
@@ -1073,11 +1075,15 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 			if(GameServer()->m_apPlayers[m_Freezer.m_ID] && m_Freezer.m_ID != -1)
 			{
 				GameServer()->m_apPlayers[m_Freezer.m_ID]->my_score += Worth()*0.7;
+
+				GameServer()->GetPlayerChar(m_Freezer.m_ID)->SetEmote(EMOTE_HAPPY, Server()->Tick() + 60);
 			}
 		}
 		if(Killer != m_pPlayer->GetCID())//giving the money and stuff to killer
 		{
-				pKillerPlayer->my_score += Worth()*0.3;
+			pKillerPlayer->my_score += Worth()*0.3;
+
+			pKillerPlayer->GetCharacter()->SetEmote(EMOTE_HAPPY, Server()->Tick() + 60);
 		}
 	}
 	if(m_ExtraLives && !GameServer()->m_apPlayers[m_Killer.m_ID])
