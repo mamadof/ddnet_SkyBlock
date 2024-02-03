@@ -226,6 +226,12 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 			if(!pChr->m_PriceShown && pChr->m_ExtraLives != NSkyb::EXTRALIFE_UPGRADE_MAX){
 				pChr->PrintThePrice(NSkyb::EXTRALIFE_UPGRADE_PRICE);
 				pChr->m_PriceShown = true;
+				if(pChr->m_ExtraLifeBuyed + 1 == NSkyb::EXTRALIFE_BUYED_MAX)
+				{
+					GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_TEE_CRY);
+					GameServer()->SendEmoticon(ClientID, EMOTICON_DROP, -1);
+					pChr->SetEmote(EMOTE_BLINK, Server()->Tick() + 60);
+				}
 
 			}else if(pChr->m_ExtraLives >= NSkyb::EXTRALIFE_UPGRADE_MAX && !pChr->m_MaximumShown){
 				GameServer()->SendBroadcast("Maximum Extra Lives !", ClientID);
@@ -399,7 +405,6 @@ void CGameControllerDDRace::Tick()
 		SetMap = true;
 	}
 
-
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		pChr = GameServer()->GetPlayerChar(i);
@@ -410,7 +415,6 @@ void CGameControllerDDRace::Tick()
 			CPlayer *pPlayer = pChr->GetPlayer();
 			// GameServer()->SendChatTarget(ClientID, GameServer()->m_apPlayers[ClientID]->m_Account.m_Username);	
 
-			
 			//hooking score stuff
 			pChrVictim = GameServer()->GetPlayerChar(pChr->Core()->HookedPlayer());
 			if((pChr->Core()->HookedPlayer() != -1) && (pChrVictim = GameServer()->GetPlayerChar(pChr->Core()->HookedPlayer())))
@@ -480,7 +484,7 @@ void CGameControllerDDRace::Tick()
 
 			// CNetObj_PlayerInput *input = pChr->GetInput();
 			// testing
-			// str_format(abuff, sizeof(abuff), "IsInFreeze:%d FreezeStart: %d", pChr->Core()->m_IsInFreeze, pChr->Core()->m_FreezeStart);
+			// str_format(abuff, sizeof(abuff), "custom color %d", pPlayer->m_TeeInfos.m_UseCustomColor);
 			// GameServer()->SendBroadcast(abuff, ClientID);
 		}
 	}

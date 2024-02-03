@@ -95,6 +95,9 @@ public:
 	void ExplosionAnimation();
 	int m_ExplosionAnimationStartTick = -1;
 
+	int m_RainBowFeetLoop;
+	int m_RainBowbodyLoop;
+
 
 	CNetObj_PlayerInput *GetInput(){return &m_Input;}
 

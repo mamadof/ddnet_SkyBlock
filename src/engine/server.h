@@ -16,6 +16,7 @@
 #include <game/generated/protocol.h>
 #include <game/generated/protocol7.h>
 #include <game/generated/protocolglue.h>
+#include <skyblock/values.h>
 
 struct CAntibotRoundData;
 
@@ -27,11 +28,16 @@ enum
 
 class IServer : public IInterface
 {
+	//my stuff
+	CSkyb m_SkyB;
+
 	MACRO_INTERFACE("server")
 protected:
 	int m_CurrentGameTick;
 
 public:
+	//my stuff
+	CSkyb  *GetSkyB(){return &m_SkyB;}
 	/*
 		Structure: CClientInfo
 	*/

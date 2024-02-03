@@ -22,3 +22,12 @@ bool CSkyb::IsNumberString(const char *pStr)//checks if a string is standard or 
     }
     return true;
 }
+int CSkyb::HSLAToInt(int H, int S, int L, int Alpha)
+{
+        int color = 0;
+        color = (color & 0xFF00FFFF) | (H << 16);
+        color = (color & 0xFFFF00FF) | (S << 8);
+        color = (color & 0xFFFFFF00) | L;
+        color = (color & 0x00FFFFFF) | (Alpha << 24);
+        return color;
+}

@@ -50,6 +50,14 @@ public:
 	bool ChangeMoney(long long int change);
 	bool m_BankIsBussy;
 
+	bool m_OriginalSkinSet = false;
+	bool SetOriginalSkin();
+	bool ResetToOriginalSkin();
+	char m_aSkinNameOriginal[64] = {'\0'};
+	int m_ColorBodyOriginal;
+	int m_ColorFeetOriginal;
+	int m_UseCustomColorOriginal;
+
 
 	CPlayer(CGameContext *pGameServer, uint32_t UniqueClientID, int ClientID, int Team);
 	~CPlayer();

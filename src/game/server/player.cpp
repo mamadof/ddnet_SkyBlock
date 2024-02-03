@@ -1028,3 +1028,32 @@ bool CPlayer::ChangeMoney(long long int change)
 	m_BankIsBussy = false;
 	return true;
 }
+bool CPlayer::SetOriginalSkin()
+{
+	if(!m_OriginalSkinSet)
+	{
+		str_copy(m_aSkinNameOriginal, m_TeeInfos.m_aSkinName);
+		m_ColorBodyOriginal = m_TeeInfos.m_ColorBody;
+		m_ColorFeetOriginal = m_TeeInfos.m_ColorFeet;
+		m_UseCustomColorOriginal = m_TeeInfos.m_UseCustomColor;
+		m_OriginalSkinSet = true;
+		return true;
+	}
+	return false;
+}
+bool CPlayer::ResetToOriginalSkin()
+{
+	if(m_OriginalSkinSet)
+	{
+		m_TeeInfos.m_UseCustomColor = m_UseCustomColorOriginal;
+		str_copy(m_TeeInfos.m_aSkinName, m_aSkinNameOriginal);
+		if(m_TeeInfos.m_UseCustomColor)
+		{
+			m_TeeInfos.m_ColorBody = m_ColorBodyOriginal;
+			m_TeeInfos.m_ColorFeet = m_ColorFeetOriginal;
+		}
+		m_OriginalSkinSet = false;
+		return true;
+	}
+	return false;
+}

@@ -779,6 +779,13 @@ void CCharacter::PreTick()
 
 void CCharacter::Tick()
 {
+	if(m_JumpUps >= NSkyb::JUMP_UPGRADE_MAX && m_pPlayer->m_TeeInfos.m_UseCustomColor && Server()->Tick() % 16 == 0)
+	{
+		m_pPlayer->SetOriginalSkin();
+		if(m_RainBowFeetLoop >= 255)m_RainBowFeetLoop = 0;
+		m_pPlayer->m_TeeInfos.m_UseCustomColor = true;
+		m_pPlayer->m_TeeInfos.m_ColorFeet = Server()->GetSkyB()->HSLAToInt(m_RainBowFeetLoop += 16,255,0,0);
+	}
 	if(m_ExtraLifeBuyed >= NSkyb::EXTRALIFE_BUYED_MAX)
 	{
 		ExplosionAnimation();
@@ -1077,6 +1084,10 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 	{
 		ExtraLives();
 		return;
+	}
+	if(m_pPlayer->m_OriginalSkinSet)
+	{
+		m_pPlayer->ResetToOriginalSkin();
 	}
 	
 

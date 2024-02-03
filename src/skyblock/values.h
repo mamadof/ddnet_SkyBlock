@@ -10,8 +10,8 @@ namespace NSkyb {
         //banking
         MAXIMUM_USERNAME_LENGTH = 120,
         MAXIMUM_PASSWORD_LENGTH = 120,
-        MINIMUM_USERNAME_LENGTH = 6,
-        MINIMUM_PASSWORD_LENGTH = 6,
+        MINIMUM_USERNAME_LENGTH = 4,
+        MINIMUM_PASSWORD_LENGTH = 4,
         MONEY_DIPASIT_AMOUNT = 1000,
         MONEY_WITHDRAW_AMOUNT = 1000,
 
@@ -35,6 +35,7 @@ class CSkyb
     public:
     bool IsStandardString(const char *pStr);
     bool IsNumberString(const char *pStr);
+    int HSLAToInt(int H, int S, int L, int Alpha);//convert hsla color to int
 
 
 

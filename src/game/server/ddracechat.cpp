@@ -1977,7 +1977,7 @@ void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 	CSkyb *pSkyb;
 	if(!pSkyb->IsStandardString(pResult->GetString(0)) || !pSkyb->IsStandardString(pResult->GetString(1)))
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "there is no such a username");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "Unstandard characters. '!@#$%^&*'");
 		return;
 	}
 
