@@ -101,6 +101,15 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	Server()->StartRecord(m_pPlayer->GetCID());
 
+	//my stuff
+	m_pPlayer->SetOriginalSkin();
+	
+	m_Core.m_CollisionDisabled = true;
+	m_Core.m_HookHitDisabled = true;
+	m_Core.m_IsGhost = true;
+	m_CanCollideNow = false;
+
+
 	return true;
 }
 
@@ -779,13 +788,26 @@ void CCharacter::PreTick()
 
 void CCharacter::Tick()
 {
-	if(m_JumpUps >= NSkyb::JUMP_UPGRADE_MAX && m_pPlayer->m_TeeInfos.m_UseCustomColor && Server()->Tick() % 16 == 0)
+	if(!m_CanCollideNow && (m_SpawnTick + (10 * Server()->TickSpeed())) <= Server()->Tick())//make the player invincible after spawn for moments
 	{
-		m_pPlayer->SetOriginalSkin();
-		if(m_RainBowFeetLoop >= 255)m_RainBowFeetLoop = 0;
-		m_pPlayer->m_TeeInfos.m_UseCustomColor = true;
-		m_pPlayer->m_TeeInfos.m_ColorFeet = Server()->GetSkyB()->HSLAToInt(m_RainBowFeetLoop += 16,255,0,0);
+		m_Core.m_CollisionDisabled = false;
+		m_Core.m_HookHitDisabled = false;
+		m_pPlayer->ResetToOriginalSkin();
+		m_CanCollideNow = true;
+		Core()->m_IsGhost = false;
 	}
+	else if(!m_CanCollideNow)
+	{
+		str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, "ghost");
+		// GameServer()->SendBroadcast(m_pPlayer->m_TeeInfos.m_aSkinName, m_pPlayer->GetCID());
+	}
+	// if(m_JumpUps >= NSkyb::JUMP_UPGRADE_MAX && m_pPlayer->m_TeeInfos.m_UseCustomColor && Server()->Tick() % 16 == 0)
+	// {
+	// 	m_pPlayer->SetOriginalSkin();
+	// 	if(m_RainBowFeetLoop >= 255)m_RainBowFeetLoop = 0;
+	// 	m_pPlayer->m_TeeInfos.m_UseCustomColor = true;
+	// 	m_pPlayer->m_TeeInfos.m_ColorFeet = Server()->GetSkyB()->HSLAToInt(m_RainBowFeetLoop += 16,255,0,0);
+	// }
 	if(m_ExtraLifeBuyed >= NSkyb::EXTRALIFE_BUYED_MAX)
 	{
 		ExplosionAnimation();
@@ -1091,10 +1113,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 		ExtraLives();
 		return;
 	}
-	if(m_pPlayer->m_OriginalSkinSet)
-	{
 		m_pPlayer->ResetToOriginalSkin();
-	}
 	
 
 	if(Server()->IsRecording(m_pPlayer->GetCID()))

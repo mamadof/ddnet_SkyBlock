@@ -301,7 +301,7 @@ void CCharacterCore::Tick(bool UseInput, bool DoDeferredTick)
 				{
 					if(distance(pCharCore->m_Pos, ClosestPoint) < PhysicalSize() + 2.0f)
 					{
-						if(m_HookedPlayer == -1 || distance(m_HookPos, pCharCore->m_Pos) < Distance)
+						if((m_HookedPlayer == -1 || distance(m_HookPos, pCharCore->m_Pos) < Distance) && !pCharCore->m_IsGhost)
 						{
 							m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
 							m_HookState = HOOK_GRABBED;

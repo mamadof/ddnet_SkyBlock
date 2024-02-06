@@ -399,11 +399,11 @@ void CGameControllerDDRace::Tick()
 	static int ClientID;
 
 	static bool SetMap = false;
-	if(!SetMap)
-	{
-		Server()->ChangeMap("SkyBlock Alpha v0.1");
-		SetMap = true;
-	}
+	// if(!SetMap)
+	// {
+	// 	Server()->ChangeMap("SkyBlock Alpha v0.1");
+	// 	SetMap = true;
+	// }
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{

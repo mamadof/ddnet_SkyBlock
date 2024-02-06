@@ -1519,6 +1519,7 @@ set(EXPECTED_DATA
   maps/Tsunami.map
   maps/Tutorial.map
   maps/coverage.map
+  maps/SkyBlock\ Alpha\ v0.1.map
   maps/ctf1.map
   maps/ctf2.map
   maps/ctf3.map

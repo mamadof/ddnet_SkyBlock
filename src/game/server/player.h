@@ -51,8 +51,8 @@ public:
 	bool m_BankIsBussy;
 
 	bool m_OriginalSkinSet = false;
-	bool SetOriginalSkin();
-	bool ResetToOriginalSkin();
+	void SetOriginalSkin();
+	void ResetToOriginalSkin();
 	char m_aSkinNameOriginal[64] = {'\0'};
 	int m_ColorBodyOriginal;
 	int m_ColorFeetOriginal;

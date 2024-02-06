@@ -224,6 +224,9 @@ class CCharacterCore
 	std::map<int, std::vector<vec2>> *m_pTeleOuts;
 
 public:
+	//my stuff
+	bool m_IsGhost;
+
 	static constexpr float PhysicalSize() { return 28.0f; };
 	static constexpr vec2 PhysicalSizeVec2() { return vec2(28.0f, 28.0f); };
 	vec2 m_Pos;

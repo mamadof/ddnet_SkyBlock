@@ -95,8 +95,10 @@ public:
 	void ExplosionAnimation();
 	int m_ExplosionAnimationStartTick = -1;
 
-	int m_RainBowFeetLoop;
-	int m_RainBowbodyLoop;
+	int m_ColorLoop1;
+	int m_ColorLoop2;
+
+	bool m_CanCollideNow;
 
 
 	CNetObj_PlayerInput *GetInput(){return &m_Input;}
