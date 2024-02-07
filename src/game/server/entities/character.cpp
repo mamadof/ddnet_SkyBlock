@@ -100,16 +100,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	GameServer()->SendTuningParams(m_pPlayer->GetCID(), m_TuneZone);
 
 	Server()->StartRecord(m_pPlayer->GetCID());
-
 	//my stuff
-	m_pPlayer->SetOriginalSkin();
-	
-	m_Core.m_CollisionDisabled = true;
-	m_Core.m_HookHitDisabled = true;
-	m_Core.m_IsGhost = true;
-	m_CanCollideNow = false;
-
-
+	Ghost();
 	return true;
 }
 
@@ -295,7 +287,7 @@ void CCharacter::HandleNinja()
 			for(int i = 0; i < Num; ++i)
 			{
 				auto *pChr = static_cast<CCharacter *>(apEnts[i]);
-				if(pChr == this)
+				if(pChr == this || pChr->Core()->m_IsGhost || this->Core()->m_IsGhost)
 					continue;
 
 				// Don't hit players in other teams
@@ -483,7 +475,7 @@ void CCharacter::FireWeapon()
 			auto *pTarget = static_cast<CCharacter *>(apEnts[i]);
 
 			//if ((pTarget == this) || Collision()->IntersectLine(ProjStartPos, pTarget->m_Pos, NULL, NULL))
-			if((pTarget == this || (pTarget->IsAlive() && !CanCollide(pTarget->GetPlayer()->GetCID()))))
+			if((pTarget == this || (pTarget->IsAlive() && !CanCollide(pTarget->GetPlayer()->GetCID())) || this->Core()->m_IsGhost || pTarget->Core()->m_IsGhost))
 				continue;
 
 			// set his velocity to fast upward (for now)
@@ -788,18 +780,9 @@ void CCharacter::PreTick()
 
 void CCharacter::Tick()
 {
-	if(!m_CanCollideNow && (m_SpawnTick + (10 * Server()->TickSpeed())) <= Server()->Tick())//make the player invincible after spawn for moments
+	if(Core()->m_IsGhost && (m_SpawnTick + (10 * Server()->TickSpeed())) <= Server()->Tick())//make the player invincible after spawn for moments
 	{
-		m_Core.m_CollisionDisabled = false;
-		m_Core.m_HookHitDisabled = false;
-		m_pPlayer->ResetToOriginalSkin();
-		m_CanCollideNow = true;
-		Core()->m_IsGhost = false;
-	}
-	else if(!m_CanCollideNow)
-	{
-		str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, "ghost");
-		// GameServer()->SendBroadcast(m_pPlayer->m_TeeInfos.m_aSkinName, m_pPlayer->GetCID());
+		UnGhost();
 	}
 	// if(m_JumpUps >= NSkyb::JUMP_UPGRADE_MAX && m_pPlayer->m_TeeInfos.m_UseCustomColor && Server()->Tick() % 16 == 0)
 	// {
@@ -1113,7 +1096,6 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 		ExtraLives();
 		return;
 	}
-		m_pPlayer->ResetToOriginalSkin();
 	
 
 	if(Server()->IsRecording(m_pPlayer->GetCID()))
@@ -2674,3 +2656,28 @@ void CCharacter::ExplosionAnimation()
 		}
 	}
 }
+void CCharacter::Ghost()
+{
+	m_pPlayer->SetOriginalSkin();
+	str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, "ghost");
+	m_pPlayer->m_SkinDistorted = true;
+	m_Core.m_HammerHitDisabled = true;
+	m_Core.m_GrenadeHitDisabled = true;
+	m_Core.m_LaserHitDisabled = true;
+	m_Core.m_ShotgunHitDisabled = true;
+	m_Core.m_CollisionDisabled = true;
+	m_Core.m_HookHitDisabled = true;
+	m_Core.m_IsGhost = true;
+}
+void CCharacter::UnGhost()
+{
+	m_pPlayer->ResetToOriginalSkin();
+	m_Core.m_CollisionDisabled = false;
+	m_Core.m_HookHitDisabled = false;
+	m_Core.m_HammerHitDisabled = false;
+	m_Core.m_GrenadeHitDisabled = false;
+	m_Core.m_LaserHitDisabled = false;
+	m_Core.m_ShotgunHitDisabled = false;
+	Core()->m_IsGhost = false;
+}
+

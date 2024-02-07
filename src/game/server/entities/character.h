@@ -99,6 +99,8 @@ public:
 	int m_ColorLoop2;
 
 	bool m_CanCollideNow;
+	void Ghost();
+	void UnGhost();
 
 
 	CNetObj_PlayerInput *GetInput(){return &m_Input;}

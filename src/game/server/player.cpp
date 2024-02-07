@@ -1030,11 +1030,14 @@ bool CPlayer::ChangeMoney(long long int change)
 }
 void CPlayer::SetOriginalSkin()
 {
+	if(!m_SkinDistorted)
+	{
 		str_copy(m_aSkinNameOriginal, m_TeeInfos.m_aSkinName);
 		m_ColorBodyOriginal = m_TeeInfos.m_ColorBody;
 		m_ColorFeetOriginal = m_TeeInfos.m_ColorFeet;
 		m_UseCustomColorOriginal = m_TeeInfos.m_UseCustomColor;
 		m_OriginalSkinSet = true;
+	}
 }
 void CPlayer::ResetToOriginalSkin()
 {
@@ -1045,4 +1048,5 @@ void CPlayer::ResetToOriginalSkin()
 			m_TeeInfos.m_ColorBody = m_ColorBodyOriginal;
 			m_TeeInfos.m_ColorFeet = m_ColorFeetOriginal;
 		}
+		m_SkinDistorted = false;
 }

@@ -307,6 +307,8 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 				continue;
 			if(Owner == -1 && ActivatedTeam != -1 && pChr->IsAlive() && pChr->Team() != ActivatedTeam)
 				continue;
+			if(pChr->Core()->m_IsGhost && Owner != pChr->GetPlayer()->GetCID())
+				continue;
 
 			// Explode at most once per team
 			int PlayerTeam = pChr->Team();

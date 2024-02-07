@@ -50,7 +50,8 @@ public:
 	bool ChangeMoney(long long int change);
 	bool m_BankIsBussy;
 
-	bool m_OriginalSkinSet = false;
+	bool m_SkinDistorted;
+	bool m_OriginalSkinSet;
 	void SetOriginalSkin();
 	void ResetToOriginalSkin();
 	char m_aSkinNameOriginal[64] = {'\0'};
