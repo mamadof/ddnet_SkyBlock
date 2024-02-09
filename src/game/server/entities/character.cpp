@@ -2658,7 +2658,6 @@ void CCharacter::ExplosionAnimation()
 }
 void CCharacter::Ghost()
 {
-	m_pPlayer->SetOriginalSkin();
 	str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, "ghost");
 	m_pPlayer->m_SkinDistorted = true;
 	m_Core.m_HammerHitDisabled = true;

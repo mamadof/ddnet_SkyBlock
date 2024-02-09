@@ -132,6 +132,7 @@ public:
 	int m_SendVoteIndex;
 
 	CTeeInfo m_TeeInfos;
+	CTeeInfo m_TeeInfosOriginal;
 
 	int m_DieTick;
 	int m_PreviousDieTick;

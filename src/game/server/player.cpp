@@ -164,6 +164,14 @@ static int PlayerFlags_SixToSeven(int Flags)
 
 void CPlayer::Tick()
 {
+	//my stuff
+	if(!m_SkinDistorted && ((m_TeeInfos.m_ColorBody != m_TeeInfosOriginal.m_ColorBody)// if the skin is changed and not distorted
+	|| (m_TeeInfos.m_ColorFeet != m_TeeInfosOriginal.m_ColorFeet) 
+	|| (m_TeeInfos.m_UseCustomColor != m_TeeInfosOriginal.m_UseCustomColor) 
+	|| str_comp(m_TeeInfos.m_aSkinName, m_TeeInfosOriginal.m_aSkinName) != 0))
+	{
+		m_TeeInfosOriginal = m_TeeInfos;
+	}
 	if(m_ScoreQueryResult != nullptr && m_ScoreQueryResult->m_Completed)
 	{
 		ProcessScoreResult(*m_ScoreQueryResult);
@@ -1032,21 +1040,12 @@ void CPlayer::SetOriginalSkin()
 {
 	if(!m_SkinDistorted)
 	{
-		str_copy(m_aSkinNameOriginal, m_TeeInfos.m_aSkinName);
-		m_ColorBodyOriginal = m_TeeInfos.m_ColorBody;
-		m_ColorFeetOriginal = m_TeeInfos.m_ColorFeet;
-		m_UseCustomColorOriginal = m_TeeInfos.m_UseCustomColor;
+		m_TeeInfosOriginal = m_TeeInfos;
 		m_OriginalSkinSet = true;
 	}
 }
 void CPlayer::ResetToOriginalSkin()
 {
-		m_TeeInfos.m_UseCustomColor = m_UseCustomColorOriginal;
-		str_copy(m_TeeInfos.m_aSkinName, m_aSkinNameOriginal);
-		if(m_TeeInfos.m_UseCustomColor)
-		{
-			m_TeeInfos.m_ColorBody = m_ColorBodyOriginal;
-			m_TeeInfos.m_ColorFeet = m_ColorFeetOriginal;
-		}
+		m_TeeInfos = m_TeeInfosOriginal;
 		m_SkinDistorted = false;
 }

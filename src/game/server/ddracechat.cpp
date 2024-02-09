@@ -2192,6 +2192,7 @@ void CGameContext::ConTest(IConsole::IResult *pResult, void *pUserData)//for tes
 	return;
 
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-	pPlayer->my_score = 0;
+	// pPlayer->my_score = 0;
+	// pPlayer->m_TeeInfos = pPlayer->m_TeeInfosOriginal;
 
 }

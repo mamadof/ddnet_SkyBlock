@@ -36,9 +36,6 @@ class CSkyb
     bool IsStandardString(const char *pStr);
     bool IsNumberString(const char *pStr);
     int HSLAToInt(int H, int S, int L, int Alpha);//convert hsla color to int
-
-
-
 };
 
 #endif //SKYBLOCK_VALUES_H
