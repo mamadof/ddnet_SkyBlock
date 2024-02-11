@@ -484,7 +484,7 @@ void CGameControllerDDRace::Tick()
 
 			// CNetObj_PlayerInput *input = pChr->GetInput();
 			// testing
-			// str_format(abuff, sizeof(abuff), "custom color %d", pPlayer->m_TeeInfos.m_UseCustomColor);
+			// str_format(abuff, sizeof(abuff), "Killer:%d  Freezer:%d",pChr->m_Killer.m_ID,pChr->m_Freezer.m_ID);
 			// GameServer()->SendBroadcast(abuff, ClientID);
 		}
 	}

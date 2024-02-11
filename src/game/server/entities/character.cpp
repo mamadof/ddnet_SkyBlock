@@ -1040,63 +1040,49 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 {
 	//my stuff
 	PlayerKillerTimeOut();
-	CPlayer *pKillerPlayer;
-
-
-
-	if(m_Killer.m_ID != -1 && GameServer()->m_apPlayers[m_Killer.m_ID])
+	CPlayer *pKillerPlayer = nullptr;
+	CPlayer *pFreezerPlayer = nullptr;
+	bool FreezerAndKIllerIsSame = false;
+	//set the killer and freezer players
+	if(m_Killer.m_ID != -1 && m_Killer.m_ID != m_pPlayer->GetCID())
 	{
 		pKillerPlayer = GameServer()->m_apPlayers[m_Killer.m_ID];
+	}
+	if(m_Freezer.m_ID != -1 && m_Freezer.m_ID != m_pPlayer->GetCID())
+	{
+		pFreezerPlayer = GameServer()->m_apPlayers[m_Freezer.m_ID];
+	}
+	//give score to the killer and freezer
+	if(pKillerPlayer)
+	{
+		pKillerPlayer->my_score += Worth()*0.40;
+	}
+	if(pFreezerPlayer)
+	{
+		pFreezerPlayer->my_score += Worth()*0.60;
+	}
+	//set the killer and weopon for killmsg
+	if(pFreezerPlayer)
+	{
+		Killer = m_Freezer.m_ID;
+		Weapon = m_Freezer.m_Weapon;
+	}
+	else if(pKillerPlayer)
+	{
 		Killer = m_Killer.m_ID;
 		Weapon = m_Killer.m_Weapon;
-		if(Weapon == WEAPON_WORLD)
-		{
-			Weapon = WEAPON_NINJA;
-		}
-		if(m_Freezer.m_ID == -1 || !GameServer()->m_apPlayers[m_Freezer.m_ID])
-		{
-			m_Freezer.m_ID = Killer;
-		}
-		if(m_ExtraLives)
-		{
-			if(m_Freezer.m_ID != m_pPlayer->GetCID() && m_Freezer.m_ID != -1)//the player who freezeed you
-			{
-				if(GameServer()->m_apPlayers[m_Freezer.m_ID])
-				{
-					GameServer()->m_apPlayers[m_Freezer.m_ID]->my_score += Worth()*0.55;
-				}
-			}
-			if(Killer != m_pPlayer->GetCID())
-			{
-				pKillerPlayer->my_score += Worth()*0.15;
-
-				pKillerPlayer->GetCharacter()->SetEmote(EMOTE_HAPPY, Server()->Tick() + 60);
-			}
-			ExtraLives();
-			return;
-		}
-		if(m_Freezer.m_ID != m_pPlayer->GetCID())//the player who freezeed you
-		{
-			if(GameServer()->m_apPlayers[m_Freezer.m_ID] && m_Freezer.m_ID != -1)
-			{
-				GameServer()->m_apPlayers[m_Freezer.m_ID]->my_score += Worth()*0.7;
-
-				GameServer()->GetPlayerChar(m_Freezer.m_ID)->SetEmote(EMOTE_HAPPY, Server()->Tick() + 60);
-			}
-		}
-		if(Killer != m_pPlayer->GetCID())//giving the money and stuff to killer
-		{
-			pKillerPlayer->my_score += Worth()*0.3;
-
-			pKillerPlayer->GetCharacter()->SetEmote(EMOTE_HAPPY, Server()->Tick() + 60);
-		}
 	}
-	if(m_ExtraLives && !GameServer()->m_apPlayers[m_Killer.m_ID])
+	//showing ninja is better than show nothing
+	if(Weapon == WEAPON_WORLD)
+	{
+		Weapon = WEAPON_NINJA;
+	}
+	//if player had extra lives
+	if(m_ExtraLives)
 	{
 		ExtraLives();
 		return;
 	}
-	
 
 	if(Server()->IsRecording(m_pPlayer->GetCID()))
 	{
