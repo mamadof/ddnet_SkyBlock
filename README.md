@@ -361,3 +361,23 @@ cp -R other/vim/* ~/.vim/
 # neovim
 cp -R other/vim/* ~/.config/nvim/
 ```
+
+how to compile on windows with mingw
+------------------------------------
+from the ucrt shell
+
+```bash
+pacman -S base-devel mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-curl mingw-w64-ucrt-x86_64-ffmpeg mingw-w64-ucrt-x86_64-freetype git mingw-w64-ucrt-x86_64-glew mingw-w64-ucrt-x86_64-glslang mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-opusfile mingw-w64-ucrt-x86_64-python3 mingw-w64-ucrt-x86_64-rust mingw-w64-ucrt-x86_64-SDL2 mingw-w64-ucrt-x86_64-spirv-tools mingw-w64-ucrt-x86_64-sqlite mingw-w64-ucrt-x86_64-vulkan-headers mingw-w64-ucrt-x86_64-vulkan-loader mingw-w64-ucrt-x86_64-wavpack mingw-w64-ucrt-x86_64-x264 --noconfirm
+
+git clone https://github.com/ddnet/ddnet
+
+git submodule update --init --recursive
+
+cd ./ddnet
+
+cmake -B build -S .
+
+cmake --build build --config Release --parallel
+```
+
+ddnet will be in ddnet/build/DDNet.exe
