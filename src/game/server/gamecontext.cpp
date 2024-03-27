@@ -34,6 +34,9 @@
 #include "player.h"
 #include "score.h"
 
+//my stuff
+#include <sqlite3.h>
+
 // Not thread-safe!
 class CClientChatLogger : public ILogger
 {
@@ -3802,6 +3805,23 @@ void CGameContext::OnInit(const void *pPersistentData)
 	if(!m_pStorage->FolderExists("Accounts", IStorage::TYPE_SAVE))
     {
         m_pStorage->CreateFolder("Accounts", IStorage::TYPE_SAVE);
+    }
+
+	if(!m_pStorage->FileExists("Accounts/Accounts.db", IStorage::TYPE_SAVE))
+    {
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "sqlite3", "account creation called");
+        m_pStorage->CreateFolder("Accounts", IStorage::TYPE_SAVE);
+
+		char abuff[600];//for general use
+		m_pStorage->GetCompletePath(IStorage::TYPE_SAVE, "Accounts/Accounts.db" ,abuff, sizeof(abuff));
+		sqlite3 *pdb;
+		sqlite3_open(abuff, &pdb);
+		sqlite3_stmt *pstmt;
+		int rcode;
+		sqlite3_prepare_v2(pdb, "create table Accounts(Name text primery key not null, Password text not null, Money text not null, xp text not null, Creation text not null, LastUsed text not null)", -1, &pstmt, NULL);
+		rcode = sqlite3_step(pstmt);
+		sqlite3_finalize(pstmt);
+		sqlite3_close(pdb);
     }
 }
 

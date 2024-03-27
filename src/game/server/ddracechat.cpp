@@ -14,6 +14,7 @@
 //my stuff
 #include <ctime>
 #include <skyblock/values.h>
+#include <sqlite3.h>
 
 bool CheckClientID(int ClientID);
 
@@ -1889,60 +1890,59 @@ void CGameContext::ConRegister(IConsole::IResult *pResult, void *pUserData)
 	CSkyb *pSkyb;
 	if(!pSkyb->IsStandardString(pResult->GetString(0)) || !pSkyb->IsStandardString(pResult->GetString(1)))
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "do not use unstandard characters: '!,@,#,$,%,^,&,<,*,'");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "use standard characters: '!,@,#,$,%,^,&,<,*,...' are excluded.");
 		return;
 	}
 
+	char abuff[600];//for general use
+	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, "Accounts/Accounts.db" ,abuff, sizeof(abuff));
+	sqlite3 *pdb;
+	sqlite3_open(abuff, &pdb);
+	sqlite3_stmt *pstmt;
+	int rcode;
 
 	//check if the username alrady exist
-	char UsernamePath[512];
-	str_format(UsernamePath, sizeof(UsernamePath), "Accounts/%s", pResult->GetString(0));
-	if(pSelf->Storage()->FolderExists(UsernamePath, IStorage::TYPE_SAVE))
+	sqlite3_prepare_v2(pdb, "select * from Accounts where name=?", -1, &pstmt, NULL);
+	sqlite3_bind_text(pstmt, 1, pResult->GetString(0), -1, NULL);
+	if(sqlite3_step(pstmt) == SQLITE_ROW)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "This username already exist!");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "this username already exist.");
+		sqlite3_finalize(pstmt);
+		sqlite3_close(pdb);
 		return;
 	}
-	//make a folder with same name as Username in Accounts folder
-	pSelf->Storage()->CreateFolder(UsernamePath, IStorage::TYPE_SAVE);
-	char abuff[600];//for general use
 
-	//write the password to seperated file
-	char PasswordPath[300];
-	str_format(PasswordPath, sizeof(PasswordPath), "%s/%s", UsernamePath, "password");
-	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, PasswordPath, abuff, sizeof(abuff));
-	IOHANDLE file = io_open(abuff, IOFLAG_WRITE);
-	io_write(file, pResult->GetString(1), str_length(pResult->GetString(1)));
-	io_close(file);
+	//make a record in Accounts.db
+	sqlite3_prepare_v2(pdb, "insert into Accounts values(?, ?, 0, 0, ?, ?)", -1, &pstmt, NULL);
+	sqlite3_bind_text(pstmt, 1, pResult->GetString(0), -1, NULL);
+	sqlite3_bind_text(pstmt, 2, pResult->GetString(1), -1, NULL);
 
-	//write moeny to a file
-	char MoneyPath[300];
-	str_format(MoneyPath, sizeof(MoneyPath), "%s/%s", UsernamePath, "money");
-	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, MoneyPath, abuff, sizeof(abuff));
-	file = io_open(abuff, IOFLAG_WRITE);
-	io_write(file, "0", 1);
-	io_close(file);
-
-	//time stuff for getting the creation of the account date
+	//set the creation date of the account
 	char aTime[50];
 	time_t rawtime;
 	struct tm *timeinfo;
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 	strftime(aTime, sizeof(aTime), "%F", timeinfo);
-	//write the creation time
-	char CreationDatePath[300];
-	str_format(CreationDatePath, sizeof(CreationDatePath), "%s/%s", UsernamePath, "CreationDate");
-	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, CreationDatePath, abuff, sizeof(abuff));
-	file = io_open(abuff, IOFLAG_WRITE);
-	io_write(file, aTime, str_length(aTime));
-	io_close(file);
 
+	sqlite3_bind_text(pstmt, 3, aTime, -1, NULL);
+	sqlite3_bind_text(pstmt, 4, aTime, -1, NULL);
+	rcode = sqlite3_step(pstmt);
 
-
-
+	//testing
+	// str_format(abuff, sizeof(abuff), "rcode: %i", rcode);
+	// pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+	if(rcode != SQLITE_DONE)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "somehting went wrong!");
+	}
 	
+	sqlite3_finalize(pstmt);
+	sqlite3_close(pdb);
+
 	str_format(abuff, sizeof(abuff), "you made an account. use /login %s %s ", pResult->GetString(0), pResult->GetString(1));
 	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+	return;
 }
 
 void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
@@ -1977,51 +1977,56 @@ void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 	CSkyb *pSkyb;
 	if(!pSkyb->IsStandardString(pResult->GetString(0)) || !pSkyb->IsStandardString(pResult->GetString(1)))
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "Unstandard characters. '!@#$%^&*'");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "do not use Unstandard characters. '!@#$%^&*'");
 		return;
 	}
 
-	char abuff[512];//for general uses
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
-
-	if(pPlayer && pPlayer->m_IsLoged && (str_comp(pResult->GetString(0), pPlayer->m_Account.m_aUsername) == 0))//check to not connect to loged in account again
+	//check to not connect to the same account again
+	if(pPlayer && pPlayer->m_IsLoged && (str_comp(pResult->GetString(0), pPlayer->m_Account.m_aUsername) == 0))
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "You already logedin to this account.");
 		return;
 	}
 
-	//check if the username exist
-	char UsernamePath[512];
-	str_format(UsernamePath, sizeof(UsernamePath), "Accounts/%s", pResult->GetString(0));
-	if(!pSelf->Storage()->FolderExists(UsernamePath, IStorage::TYPE_SAVE))
+	char abuff[600];//for general use
+	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, "Accounts/Accounts.db" ,abuff, sizeof(abuff));
+	sqlite3 *pdb;
+	sqlite3_open(abuff, &pdb);
+	sqlite3_stmt *pstmt;
+	int rcode;
+	sqlite3_prepare_v2(pdb, "select * from Accounts where name=? and password=?", -1, &pstmt, NULL);
+	sqlite3_bind_text(pstmt, 1, pResult->GetString(0), -1, NULL);
+	sqlite3_bind_text(pstmt, 2, pResult->GetString(1), -1, NULL);
+	rcode = sqlite3_step(pstmt);
+	sqlite3_finalize(pstmt);
+
+
+	//testing
+	// str_format(abuff, sizeof(abuff), "rcode: %i", rcode);
+	// pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+
+	//check if there is an account with this username and password
+	if(rcode == SQLITE_DONE)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "There isn't any account with this username. try /register");
+		str_format(abuff, sizeof(abuff), "wrong username or password");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+		sqlite3_finalize(pstmt);
+		sqlite3_close(pdb);
 		return;
 	}
 
-	char PasswordPath[300];
-	mem_zero(abuff, sizeof(abuff));
-	str_format(PasswordPath, sizeof(PasswordPath), "%s/%s", UsernamePath, "password");
-	pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, PasswordPath, abuff, sizeof(abuff));
-	IOHANDLE file = io_open(abuff, IOFLAG_READ);
-	char FilePassword[200];
-	str_copy(FilePassword, io_read_all_str(file));
-	if(str_comp(FilePassword, pResult->GetString(1)) != 0)//check the password
+	//read the content and assign the information
+	if(rcode == SQLITE_ROW)
 	{
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "Wrong password.");
-		return;
-	}
-
-	if(pPlayer)
-	{
-		pPlayer->m_IsLoged = true;
+		// const char *username = reinterpret_cast<const char*>(sqlite3_column_text(pstmt, 0));
+		// const char *password = reinterpret_cast<const char*>(sqlite3_column_text(pstmt, 1));
+		//assign the key information
 		str_copy(pPlayer->m_Account.m_aUsername, pResult->GetString(0));
 		str_copy(pPlayer->m_Account.m_aPassword, pResult->GetString(1));
+		pPlayer->m_IsLoged = true;
 
-		str_format(abuff, sizeof(abuff), "Loged in, your money: %llu", pPlayer->ReadMoney());
-		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
-
-
+		//time stuff
 		char aTime[50];
 		time_t rawtime;
 		struct tm *timeinfo;
@@ -2030,13 +2035,25 @@ void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 		strftime(aTime, sizeof(aTime), "%F", timeinfo);
 
 		//write the LastUsed date
-		char LastUsedPath[300];
-		str_format(LastUsedPath, sizeof(LastUsedPath), "%s/%s", UsernamePath, "LastUsed");
-		pSelf->Storage()->RemoveFile(LastUsedPath, IStorage::TYPE_SAVE);
-		pSelf->Storage()->GetCompletePath(IStorage::TYPE_SAVE, LastUsedPath, abuff, sizeof(abuff));
-		file = io_open(abuff, IOFLAG_WRITE);
-		io_write(file, aTime, str_length(aTime));
-		io_close(file);
+		sqlite3_prepare_v2(pdb, "update Accounts set LastUsed=? where name=?", -1, &pstmt, NULL);
+		sqlite3_bind_text(pstmt, 1, aTime, -1, NULL);
+		sqlite3_bind_text(pstmt, 2, pResult->GetString(0), -1, NULL);
+
+		sqlite3_step(pstmt);
+		sqlite3_finalize(pstmt);
+		sqlite3_close(pdb);
+
+		str_format(abuff, sizeof(abuff), "Loged in, your money: %llu", pPlayer->ReadMoney());
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+		return;
+	}
+	else
+	{
+		str_format(abuff, sizeof(abuff), "something went wrong");
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+		sqlite3_finalize(pstmt);
+		sqlite3_close(pdb);
+		return;
 	}
 }
 
@@ -2147,7 +2164,7 @@ void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)//for tes
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "the player is not connected to any accounts");
 				return;
 			}
-			if(pPlayer->ReadMoney() == 0)//if gift is not zero
+			if(pPlayer->ReadMoney() == 0)//if player's account is empty
 			{
 				pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "your fucking account is empty 0__0");
 				return;
@@ -2182,6 +2199,36 @@ void CGameContext::ConBank(IConsole::IResult *pResult, void *pUserData)//for tes
 	}
 
 
+}
+
+void CGameContext::ConLogout(IConsole::IResult *pResult, void *pUserData)//for testing stuff
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	if(!CheckClientID(pResult->m_ClientID))
+	return;
+
+	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
+	if(!pPlayer)
+	return;
+
+
+	if(!pPlayer->m_IsLoged)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "you are not loged in.");
+		return;
+	}
+
+	if(pPlayer->m_IsLoged)
+	{
+		mem_zero(pPlayer->m_Account.m_aUsername, sizeof(pPlayer->m_Account.m_aUsername));
+		mem_zero(pPlayer->m_Account.m_aPassword, sizeof(pPlayer->m_Account.m_aPassword));
+		pPlayer->m_IsLoged = false;
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "you loged out.");
+		return;
+	}
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", "something went wrong!");
+
+	return;
 }
 
 void CGameContext::ConTest(IConsole::IResult *pResult, void *pUserData)//for testing stuff

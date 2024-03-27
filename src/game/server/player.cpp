@@ -20,6 +20,7 @@
 #include <engine/storage.h>
 #include <limits>
 #include <fstream>
+#include <sqlite3.h>
 
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
@@ -969,44 +970,51 @@ void CPlayer::ProcessScoreResult(CScorePlayerResult &Result)
 //reads the players money
 long long unsigned int CPlayer::ReadMoney()
 {
-	m_BankIsBussy = true;//to dissallow multy player use it
-	long long unsigned int money;
-	char *Username = m_Account.m_aUsername;
-	char afullpath[600];
-	char abuff[300];
 	if(!m_IsLoged)
 	{
 		return 0;
 	}
+	//to dissallow multy player's use it
+	long long unsigned int money;
+	char abuff[600];//for general use
+	m_pGameServer->Storage()->GetCompletePath(IStorage::TYPE_SAVE, "Accounts/Accounts.db" ,abuff, sizeof(abuff));
+	sqlite3 *pdb;
+	sqlite3_open(abuff, &pdb);
+	sqlite3_stmt *pstmt;
+	
+	sqlite3_prepare_v2(pdb, "select money from Accounts where name=? and password=?", -1, &pstmt, NULL);
+	sqlite3_bind_text(pstmt, 1, m_Account.m_aUsername, -1, NULL);
+	sqlite3_bind_text(pstmt, 2, m_Account.m_aPassword, -1, NULL);
+	sqlite3_step(pstmt);
 
-	//get the full path to the money
-	str_format(abuff, sizeof(abuff), "Accounts/%s/money", Username);
-	m_pGameServer->Storage()->GetCompletePath(IStorage::TYPE_SAVE, abuff, afullpath, sizeof(afullpath));
-
-	IOHANDLE file = io_open(afullpath, IOFLAG_READ);
-	std::string strmoney = io_read_all_str(file);
+	//testing
+	// str_format(abuff, sizeof(abuff), "sqlite3 readed money: %s\nrcode: %i", sqlite3_column_text(pstmt, 0), rcode);
+	// m_pGameServer->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
+	std::string strmoney = reinterpret_cast<const char*>(sqlite3_column_text(pstmt, 0));
 	money = std::stoull(strmoney);
-	io_close(file);
-	m_BankIsBussy = false;
+	sqlite3_finalize(pstmt);
+	sqlite3_close(pdb);
 	return money;
 
 }
 
 bool CPlayer::ChangeMoney(long long int change)
 {
-	m_BankIsBussy = true;//to dissallow multy player use it
-	unsigned long long int CurrentMoney = ReadMoney();
-	char *Username = m_Account.m_aUsername;
-	char *Password = m_Account.m_aPassword;
-	char abuff[300];
-	char afullpath[600];
 
+	char aBuf[512];
+
+	//testing
+	// str_format(aBuf, sizeof(aBuf), "change: %lld", change);
+	// GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1, CGameContext::CHAT_SIX);
+
+	//if player is loged in
 	if(!m_IsLoged)
 	{
 		return false;
 	}
 
-	//check if the change request is do able
+	unsigned long long CurrentMoney = ReadMoney();
+	// check if change request is valid
 	if(change == 0)
 	{
 		return false;
@@ -1019,21 +1027,37 @@ bool CPlayer::ChangeMoney(long long int change)
 	{
 		return false;
 	}
+	char abuff[600];//for general use
+	m_pGameServer->Storage()->GetCompletePath(IStorage::TYPE_SAVE, "Accounts/Accounts.db" ,abuff, sizeof(abuff));
+	sqlite3 *pdb;
+	sqlite3_open(abuff, &pdb);
+	sqlite3_stmt *pstmt;
+	int rcode;
+	int rcode1;
+	unsigned long long sum = CurrentMoney + change;
+
+	//change the money
+	//update accounts set money=? where name=?
+	rcode1 = sqlite3_prepare_v2(pdb, "update accounts set money=? where name=?", -1, &pstmt, NULL);
+
+	//convert changed money into string
+	mem_zero(abuff, sizeof(abuff));
+	str_format(abuff, sizeof(abuff), "%llu", sum);
+
+	sqlite3_bind_text(pstmt, 1, abuff, -1, NULL);
+	sqlite3_bind_text(pstmt, 2, m_Account.m_aUsername, -1, NULL);
+	rcode = sqlite3_step(pstmt);
+
+	//18446744073709550616 change
+	//999999999999804756 money
 	
-	//remove the file named money
-	str_format(abuff, sizeof(abuff), "Accounts/%s/money", Username);
-	m_pGameServer->Storage()->RemoveFile(abuff,IStorage::TYPE_SAVE);
+	//testing
+	// mem_zero(abuff, sizeof(abuff));
+	// str_format(abuff, sizeof(abuff), "rcode: %i  rcode1: %i change requested: %llu change: %lld", rcode, rcode1, sum, change);
+	// m_pGameServer->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "chatresp", abuff);
 
-	//write the new money into a file named money
-	m_pGameServer->Storage()->GetCompletePath(IStorage::TYPE_SAVE, abuff, afullpath, sizeof(afullpath));
-	IOHANDLE file = io_open(afullpath, IOFLAG_WRITE);
-	str_format(abuff, sizeof(abuff), "%llu", CurrentMoney + change);
-	io_write(file, abuff, str_length(abuff));
-	io_close(file);
-
-
-
-	m_BankIsBussy = false;
+	sqlite3_finalize(pstmt);
+	sqlite3_close(pdb);
 	return true;
 }
 void CPlayer::SetOriginalSkin()
