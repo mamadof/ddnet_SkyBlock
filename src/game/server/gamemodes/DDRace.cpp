@@ -397,6 +397,7 @@ void CGameControllerDDRace::Tick()
 	static CCharacter *pChr;
 	static CCharacter *pChrVictim;
 	static int ClientID;
+	CSkyb *pSkyb;
 
 	static bool SetMap = false;
 	// if(!SetMap)
@@ -439,7 +440,9 @@ void CGameControllerDDRace::Tick()
 				pChr->m_UsedHookUps = pChr->HookTimeUpPerUpgrade * pChr->m_HookUps;
 			}
 
-
+			// char abuff2[5];
+			// GameServer()->RandomCharacter(abuff2);
+			// Server()->SetClientName(ClientID, abuff2);
 			// if((pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire )
 			// {
 				
@@ -484,7 +487,7 @@ void CGameControllerDDRace::Tick()
 
 			// CNetObj_PlayerInput *input = pChr->GetInput();
 			// testing
-			// str_format(abuff, sizeof(abuff), "Killer:%d  Freezer:%d",pChr->m_Killer.m_ID,pChr->m_Freezer.m_ID);
+			// str_format(abuff, sizeof(abuff), "%s", abuff2);
 			// GameServer()->SendBroadcast(abuff, ClientID);
 		}
 	}

@@ -166,6 +166,8 @@ class CGameContext : public IGameServer
 public:
 	//my stuff
 	void ExtraLiveParticle(CCharacter *pChar);
+	void RandomCharacter(char *abuff);
+	int RandomHSLA() const;
 
 	IServer *Server() const { return m_pServer; }
 	IConfigManager *ConfigManager() const { return m_pConfigManager; }
@@ -339,6 +341,10 @@ public:
 	bool IsClientPlayer(int ClientID) const override;
 	int PersistentDataSize() const override { return sizeof(CPersistentData); }
 	int PersistentClientDataSize() const override { return sizeof(CPersistentClientData); }
+
+	//my stuff
+	void DebugDummySetter(int ClientID) const override;
+
 
 	CUuid GameUuid() const override;
 	const char *GameType() const override;

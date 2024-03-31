@@ -2685,6 +2685,9 @@ void CServer::UpdateDebugDummies(bool ForceDisconnect)
 			m_aClients[ClientID].m_State = CClient::STATE_INGAME;
 			str_format(m_aClients[ClientID].m_aName, sizeof(m_aClients[ClientID].m_aName), "%d", DummyIndex + 1);//the name of the dummies
 			GameServer()->OnClientEnter(ClientID);
+
+			//my stuff
+			GameServer()->DebugDummySetter(ClientID);
 		}
 		else if(!AddDummy && m_aClients[ClientID].m_DebugDummy)
 		{

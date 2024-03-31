@@ -2241,5 +2241,18 @@ void CGameContext::ConTest(IConsole::IResult *pResult, void *pUserData)//for tes
 	CPlayer *pPlayer = pSelf->m_apPlayers[pResult->m_ClientID];
 	// pPlayer->my_score = 0;
 	// pPlayer->m_TeeInfos = pPlayer->m_TeeInfosOriginal;
+	// char abuff[300];
+	// str_format(abuff, sizeof(abuff), "client %i is %i.", 0, pSelf->m_apPlayers[0]->m_IsDebugDummy);
+	// pSelf->SendChatTarget(pResult->m_ClientID, abuff);
+
+	// str_format(abuff, sizeof(abuff), "client %i is %i.", 59, pSelf->m_apPlayers[59]->m_IsDebugDummy);
+	// pSelf->SendChatTarget(pResult->m_ClientID, abuff);
+
+	// char abuff[300];
+	// str_format(abuff, sizeof(abuff), "%s %i %i", pSelf->m_pServer->ClientName(0), sizeof(pSelf->m_pServer->ClientName(0)), str_length(pSelf->m_pServer->ClientName(0)));
+	// pSelf->SendChatTarget(pResult->m_ClientID, abuff);
+
+	// str_copy(pPlayer->m_TeeInfos.m_aSkinName, "toptri");
+
 
 }

@@ -4236,6 +4236,12 @@ bool CGameContext::IsClientPlayer(int ClientID) const
 	return m_apPlayers[ClientID] && m_apPlayers[ClientID]->GetTeam() != TEAM_SPECTATORS;
 }
 
+//my stuff
+void CGameContext::DebugDummySetter(int ClientID) const
+{
+	m_apPlayers[ClientID]->m_IsDebugDummy = true;
+}
+
 CUuid CGameContext::GameUuid() const { return m_GameUuid; }
 const char *CGameContext::GameType() const { return m_pController && m_pController->m_pGameType ? m_pController->m_pGameType : ""; }
 const char *CGameContext::Version() const { return GAME_VERSION; }
@@ -4812,4 +4818,36 @@ void CGameContext::ExtraLiveParticle(CCharacter *pChar)
 			SendEmoticon(pChar->GetPlayer()->GetCID(), EMOTICON_GHOST, -1);
 		}
 	}
+}
+
+void CGameContext::RandomCharacter(char *abuff)
+{
+    const char Alphebet[][4] = {
+    "ა","ბ","გ","დ","ე","ვ","ზ","თ","ი","კ","ლ","მ","ნ","ო","პ","ჟ","რ","ს","ტ","უ"
+    ,"ფ","ქ","ღ","შ","ჩ","ც","ძ","წ","ჭ","ხ","ჯ","ჰ","ჱ","ჲ","ჳ","ჴ","ჵ"
+    ,"ⴀ","ⴁ","ⴂ","ⴃ","ⴄ","ⴅ","ⴆ","ⴡ","ⴈ","ⴉ","ⴊ","ⴋ","ⴌ","ⴢ","ⴍ","ⴎ","ⴏ","ⴐ"
+    ,"ⴑ","ⴒ","ⴣ","ⴍ","ⴔ","ⴕ","ⴖ","ⴗ","ⴘ","ⴙ","ⴚ","ⴛ","ⴜ","ⴝ","ⴞ","ⴤ","ⴟ","ⴠ","ⴥ"
+    };
+    const int AlphebetNumbers = sizeof Alphebet / sizeof Alphebet[0];
+    static bool IsUsed[AlphebetNumbers];
+	int RandomNumber;
+	int iterate = 0;
+	do{
+		iterate++;
+		RandomNumber = rand() % AlphebetNumbers-1;
+	}while(IsUsed[RandomNumber] && iterate < 10);
+
+	IsUsed[RandomNumber] = true;
+
+
+    strcpy(abuff, Alphebet[RandomNumber]);
+}
+int CGameContext::RandomHSLA() const
+{
+        int color = 0;
+        color = (color & 0xFF00FFFF) | (rand() % 255-1 << 16); //H
+        color = (color & 0xFFFF00FF) | (255 << 8);//S
+        color = (color & 0xFFFFFF00) | 90;//L
+        color = (color & 0x00FFFFFF) | (255 << 24);//Alpha
+        return color;
 }

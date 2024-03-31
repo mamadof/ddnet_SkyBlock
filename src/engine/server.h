@@ -342,6 +342,10 @@ public:
 	virtual bool IsClientReady(int ClientID) const = 0;
 	virtual bool IsClientPlayer(int ClientID) const = 0;
 
+	//my stuff
+	virtual void DebugDummySetter(int ClientID) const = 0;
+
+
 	virtual int PersistentDataSize() const = 0;
 	virtual int PersistentClientDataSize() const = 0;
 

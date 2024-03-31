@@ -100,8 +100,25 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	GameServer()->SendTuningParams(m_pPlayer->GetCID(), m_TuneZone);
 
 	Server()->StartRecord(m_pPlayer->GetCID());
+
 	//my stuff
-	Ghost();
+	if(m_pPlayer->m_IsDebugDummy)
+	{
+		m_ExtraLives = 1;
+
+		char abuff[5];
+		GameServer()->RandomCharacter(abuff);
+		Server()->SetClientName(m_pPlayer->GetCID(), abuff);
+		str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, "toptri");
+		pPlayer->m_TeeInfos.m_UseCustomColor = true;
+		pPlayer->m_TeeInfos.m_ColorBody = GameServer()->RandomHSLA();
+		pPlayer->m_TeeInfos.m_ColorFeet = GameServer()->RandomHSLA();
+	}
+	else
+	{
+		Ghost();
+	}
+
 	return true;
 }
 
@@ -1078,9 +1095,12 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 		Weapon = WEAPON_NINJA;
 	}
 	//if player had extra lives
-	if(m_ExtraLives)
+	if(m_ExtraLives || m_pPlayer->m_IsDebugDummy)
 	{
 		ExtraLives();
+		str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, "toptri");
+		m_pPlayer->m_TeeInfos.m_ColorBody = GameServer()->RandomHSLA();
+		m_pPlayer->m_TeeInfos.m_ColorFeet = GameServer()->RandomHSLA();
 		return;
 	}
 
@@ -2584,6 +2604,8 @@ void CCharacter::ExtraLives()
 		Rescue();
 		m_UnfreezeNeeded = true;
 		GameServer()->ExtraLiveParticle(this);
+
+		if(!m_pPlayer->m_IsDebugDummy)
 		m_ExtraLives--;
 		
 }

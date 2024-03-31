@@ -1,7 +1,5 @@
 #include "values.h"
 
-#include <engine/storage.h>
-
 bool CSkyb::IsStandardString(const char *pStr)//checks if a string is standard or not
 {
     while(*pStr)

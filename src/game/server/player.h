@@ -59,6 +59,8 @@ public:
 	int m_ColorFeetOriginal;
 	int m_UseCustomColorOriginal;
 
+	bool m_IsDebugDummy;
+
 
 	CPlayer(CGameContext *pGameServer, uint32_t UniqueClientID, int ClientID, int Team);
 	~CPlayer();
