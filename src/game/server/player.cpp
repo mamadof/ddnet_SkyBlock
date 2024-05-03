@@ -166,6 +166,10 @@ static int PlayerFlags_SixToSeven(int Flags)
 void CPlayer::Tick()
 {
 	//my stuff
+	if(m_IsDebugDummy && m_Afk)
+	{
+		SetAfk(false);
+	}
 	if(!m_SkinDistorted && ((m_TeeInfos.m_ColorBody != m_TeeInfosOriginal.m_ColorBody)// if the skin is changed and not distorted
 	|| (m_TeeInfos.m_ColorFeet != m_TeeInfosOriginal.m_ColorFeet) 
 	|| (m_TeeInfos.m_UseCustomColor != m_TeeInfosOriginal.m_UseCustomColor) 

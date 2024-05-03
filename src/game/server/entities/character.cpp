@@ -109,6 +109,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		char abuff[5];
 		GameServer()->RandomCharacter(abuff);
 		Server()->SetClientName(m_pPlayer->GetCID(), abuff);
+		Server()->SetClientClan(m_pPlayer->GetCID(), "---Bot---");
 		str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, "toptri");
 		pPlayer->m_TeeInfos.m_UseCustomColor = true;
 		pPlayer->m_TeeInfos.m_ColorBody = GameServer()->RandomHSLA();
@@ -797,6 +798,13 @@ void CCharacter::PreTick()
 
 void CCharacter::Tick()
 {
+	// if(m_pPlayer->m_IsDebugDummy)
+	// Teams()->SetForceCharacterTeam(m_pPlayer->GetCID(), 30);
+
+	// if(!m_pPlayer->m_IsDebugDummy && !m_Core.m_Super)
+	// {
+	// 	SetSuper(true);
+	// }
 	if(Core()->m_IsGhost && (m_SpawnTick + (10 * Server()->TickSpeed())) <= Server()->Tick())//make the player invincible after spawn for moments
 	{
 		UnGhost();
@@ -1095,12 +1103,15 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 		Weapon = WEAPON_NINJA;
 	}
 	//if player had extra lives
-	if(m_ExtraLives || m_pPlayer->m_IsDebugDummy)
+	if(m_ExtraLives)
 	{
+		if (m_pPlayer->m_IsDebugDummy)
+		{
+			str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, "toptri");
+			m_pPlayer->m_TeeInfos.m_ColorBody = GameServer()->RandomHSLA();
+			m_pPlayer->m_TeeInfos.m_ColorFeet = GameServer()->RandomHSLA();
+		}
 		ExtraLives();
-		str_copy(m_pPlayer->m_TeeInfos.m_aSkinName, "toptri");
-		m_pPlayer->m_TeeInfos.m_ColorBody = GameServer()->RandomHSLA();
-		m_pPlayer->m_TeeInfos.m_ColorFeet = GameServer()->RandomHSLA();
 		return;
 	}
 
