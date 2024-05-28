@@ -1999,8 +1999,11 @@ void CGameContext::Conlogin(IConsole::IResult *pResult, void *pUserData)
 	sqlite3_bind_text(pstmt, 1, pResult->GetString(0), -1, NULL);
 	sqlite3_bind_text(pstmt, 2, pResult->GetString(1), -1, NULL);
 	rcode = sqlite3_step(pstmt);
-	sqlite3_finalize(pstmt);
 
+	if(rcode != SQLITE_DONE)
+	{
+	sqlite3_finalize(pstmt);
+	}
 
 	//testing
 	// str_format(abuff, sizeof(abuff), "rcode: %i", rcode);

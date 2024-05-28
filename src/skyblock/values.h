@@ -3,7 +3,7 @@
 #define SKYBLOCK_VALUES_H
 
 //number of debug dummies
-#define DEBUG_DUMMIES_NUMBER 9
+#define DEBUG_DUMMIES_NUMBER 63
 
 namespace NSkyb {
     enum{
@@ -27,7 +27,9 @@ namespace NSkyb {
         EXTRALIFE_UPGRADE_MAX = 1,
         EXTRALIFE_BUYED_MAX = 3,//make the tee explode :)
 
-
+        GRENADE_PRICE = 25,
+        SHOTGUN_PRICE = 40,
+        LASER_PRICE = 50,
     };
 }
 class CSkyb

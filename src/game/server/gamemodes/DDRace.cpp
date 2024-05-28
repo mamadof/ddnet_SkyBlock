@@ -336,9 +336,111 @@ void CGameControllerDDRace::HandleCharacterTiles(CCharacter *pChr, int MapIndex)
 			}
 			break;
 
+			case 27://buy grenade
+			if(!pChr->m_PriceShown  && !pChr->GetWeaponGot(WEAPON_GRENADE))
+			{
+				pChr->PrintThePrice(NSkyb::GRENADE_PRICE);
+			}
+			else if(pChr->GetWeaponGot(WEAPON_GRENADE) && !pChr->m_MaximumShown)
+			{
+				GameServer()->SendBroadcast("you have grenade!", ClientID);
+				pChr->m_MaximumShown = true;
+			}
+
+			if(pPlayer->my_score >= NSkyb::GRENADE_PRICE && !pChr->GetWeaponGot(WEAPON_GRENADE) && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed)
+			{
+				pChr->GiveWeapon(WEAPON_GRENADE);
+				pPlayer->my_score -= NSkyb::GRENADE_PRICE;
+
+				pChr->m_Buyed = true;
+				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_GRENADE);
+				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
+			}
+			break;
+
+			case 28://buy shotgun
+			if(!pChr->m_PriceShown  && !pChr->GetWeaponGot(WEAPON_SHOTGUN))
+			{
+				pChr->PrintThePrice(NSkyb::SHOTGUN_PRICE);
+			}
+			else if(pChr->GetWeaponGot(WEAPON_SHOTGUN) && !pChr->m_MaximumShown)
+			{
+				GameServer()->SendBroadcast("you have shotgun!", ClientID);
+				pChr->m_MaximumShown = true;
+			}
+
+			if(pPlayer->my_score >= NSkyb::SHOTGUN_PRICE && !pChr->GetWeaponGot(WEAPON_SHOTGUN) && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed)
+			{
+				pChr->GiveWeapon(WEAPON_SHOTGUN);
+				pPlayer->my_score -= NSkyb::SHOTGUN_PRICE;
+
+				pChr->m_Buyed = true;
+				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_SHOTGUN);
+				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
+			}
+			break;
+
+			case 29://buy laser
+			if(!pChr->m_PriceShown  && !pChr->GetWeaponGot(WEAPON_LASER))
+			{
+				pChr->PrintThePrice(NSkyb::LASER_PRICE);
+			}
+			else if(pChr->GetWeaponGot(WEAPON_LASER) && !pChr->m_MaximumShown)
+			{
+				GameServer()->SendBroadcast("you have laser!", ClientID);
+				pChr->m_MaximumShown = true;
+			}
+
+			if(pPlayer->my_score >= NSkyb::LASER_PRICE && !pChr->GetWeaponGot(WEAPON_LASER) && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed)
+			{
+				pChr->GiveWeapon(WEAPON_LASER);
+				pPlayer->my_score -= NSkyb::LASER_PRICE;
+
+				pChr->m_Buyed = true;
+				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_SHOTGUN);
+				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
+			}
+			break;
+
 			default:
 			break;
 		}
+
+// if(!pChr->m_PriceShown  && pChr->m_JetpackUps != NSkyb::JETPACK_UPGRADE_MAX)
+// 			{
+// 				pChr->PrintThePrice(NSkyb::JETPACK_UPGRADE_PRICE);
+// 			}
+// 			else if(pChr->m_JetpackUps == NSkyb::JETPACK_UPGRADE_MAX && !pChr->m_MaximumShown)
+// 			{
+// 				GameServer()->SendBroadcast("Maximum jetpack upgrades !", ClientID);
+// 				pChr->m_MaximumShown = true;
+// 			}
+// 			if(pPlayer->my_score >= NSkyb::JETPACK_UPGRADE_PRICE && pChr->m_JetpackUps < NSkyb::JETPACK_UPGRADE_MAX && (pChr->Core()->m_ActiveWeapon == WEAPON_HAMMER) && pChr->m_Fire && !pChr->m_Buyed)
+// 			{
+// 				pChr->m_JetpackUps++;
+// 				if(pChr->m_JetpackUps == 1)
+// 				{
+// 					pChr->Core()->m_Jetpack = true;
+// 					pPlayer->my_score -= NSkyb::JETPACK_UPGRADE_PRICE;
+// 				}
+// 				else
+// 				{
+// 					pChr->m_CharJetpackStrenght += 21;
+// 					pPlayer->my_score -= NSkyb::JETPACK_UPGRADE_PRICE;
+// 				}
+
+// 				pChr->m_Buyed = true;
+// 				GameServer()->CreateSound(pChr->Core()->m_Pos, SOUND_PICKUP_HEALTH);
+// 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
+// 				GameServer()->CreateDeath(pChr->Core()->m_Pos, ClientID);
+// 			}
+
 		pChr->m_BeenInShop = true;
 		pChr->m_BeenPos = pChr->Core()->m_Pos;
 	}

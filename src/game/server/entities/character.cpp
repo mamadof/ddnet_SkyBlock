@@ -1111,6 +1111,8 @@ void CCharacter::Die(int Killer, int Weapon, bool SendKillMsg)
 			m_pPlayer->m_TeeInfos.m_ColorBody = GameServer()->RandomHSLA();
 			m_pPlayer->m_TeeInfos.m_ColorFeet = GameServer()->RandomHSLA();
 		}
+		GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID(), TeamMask()); // death animation
+		GameServer()->CreateSound(m_Pos, SOUND_PLAYER_DIE, TeamMask()); // sound of death
 		ExtraLives();
 		return;
 	}
@@ -2611,13 +2613,27 @@ void CCharacter::PlayerKillerTimeOut()
 }
 void CCharacter::ExtraLives()
 {
-		RetractAttachedHooks();
-		Rescue();
-		m_UnfreezeNeeded = true;
-		GameServer()->ExtraLiveParticle(this);
+	RetractAttachedHooks();
+	Rescue();
+	m_UnfreezeNeeded = true;
+	GameServer()->ExtraLiveParticle(this);
 
-		if(!m_pPlayer->m_IsDebugDummy)
+	// if(!m_pPlayer->m_IsDebugDummy)
+	// m_ExtraLives--;
+
+	if(m_pPlayer->m_IsDebugDummy)
+	{
+		if((Server()->Tick() - m_ExtraLifeLastUsedTick) <= 10)
+		{
+			m_ExtraLives--;
+			Die(-1,-1,1);
+		}
+	}
+	else
+	{
 		m_ExtraLives--;
+	}
+	m_ExtraLifeLastUsedTick = Server()->Tick();
 		
 }
 void CCharacter::RetractAttachedHooks()

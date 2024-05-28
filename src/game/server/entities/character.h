@@ -53,6 +53,7 @@ public:
 
 	unsigned int m_ExtraLifeBuyed;
 	unsigned int m_ExtraLives;	
+	int m_ExtraLifeLastUsedTick;
 	void ExtraLives();
 	bool m_UnfreezeNeeded;
 	void RetractAttachedHooks();

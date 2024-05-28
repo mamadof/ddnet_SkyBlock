@@ -334,43 +334,43 @@ CEntity *CGameWorld::GetEntity(int ID, int EntityType)
 
 void CGameWorld::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, int ActivatedTeam, CClientMask Mask)
 {
-	if(Owner < 0 && m_WorldConfig.m_IsSolo && !(Weapon == WEAPON_SHOTGUN && m_WorldConfig.m_IsDDRace))
-		return;
+	// if(Owner < 0 && m_WorldConfig.m_IsSolo && !(Weapon == WEAPON_SHOTGUN && m_WorldConfig.m_IsDDRace))
+	// 	return;
 
-	// deal damage
-	CEntity *apEnts[MAX_CLIENTS];
-	float Radius = 135.0f;
-	float InnerRadius = 48.0f;
-	int Num = FindEntities(Pos, Radius, apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
-	for(int i = 0; i < Num; i++)
-	{
-		auto *pChar = static_cast<CCharacter *>(apEnts[i]);
-		vec2 Diff = pChar->m_Pos - Pos;
-		vec2 ForceDir(0, 1);
-		float l = length(Diff);
-		if(l)
-			ForceDir = normalize(Diff);
-		l = 1 - clamp((l - InnerRadius) / (Radius - InnerRadius), 0.0f, 1.0f);
-		float Strength;
-		if(Owner == -1 || !GetCharacterByID(Owner))
-			Strength = Tuning()->m_ExplosionStrength;
-		else
-			Strength = GetCharacterByID(Owner)->Tuning()->m_ExplosionStrength;
+	// // deal damage
+	// CEntity *apEnts[MAX_CLIENTS];
+	// float Radius = 135.0f;
+	// float InnerRadius = 48.0f;
+	// int Num = FindEntities(Pos, Radius, apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+	// for(int i = 0; i < Num; i++)
+	// {
+	// 	auto *pChar = static_cast<CCharacter *>(apEnts[i]);
+	// 	vec2 Diff = pChar->m_Pos - Pos;
+	// 	vec2 ForceDir(0, 1);
+	// 	float l = length(Diff);
+	// 	if(l)
+	// 		ForceDir = normalize(Diff);
+	// 	l = 1 - clamp((l - InnerRadius) / (Radius - InnerRadius), 0.0f, 1.0f);
+	// 	float Strength;
+	// 	if(Owner == -1 || !GetCharacterByID(Owner))
+	// 		Strength = Tuning()->m_ExplosionStrength;
+	// 	else
+	// 		Strength = GetCharacterByID(Owner)->Tuning()->m_ExplosionStrength;
 
-		float Dmg = Strength * l;
-		if((int)Dmg)
-			if((GetCharacterByID(Owner) ? !GetCharacterByID(Owner)->GrenadeHitDisabled() : g_Config.m_SvHit || NoDamage) || Owner == pChar->GetCID())
-			{
-				if(Owner != -1 && !pChar->CanCollide(Owner))
-					continue;
-				if(Owner == -1 && ActivatedTeam != -1 && pChar->Team() != ActivatedTeam)
-					continue;
-				pChar->TakeDamage(ForceDir * Dmg * 2, (int)Dmg, Owner, Weapon);
+	// 	float Dmg = Strength * l;
+	// 	if((int)Dmg)
+	// 		if((GetCharacterByID(Owner) ? !GetCharacterByID(Owner)->GrenadeHitDisabled() : g_Config.m_SvHit || NoDamage) || Owner == pChar->GetCID())
+	// 		{
+	// 			if(Owner != -1 && !pChar->CanCollide(Owner))
+	// 				continue;
+	// 			if(Owner == -1 && ActivatedTeam != -1 && pChar->Team() != ActivatedTeam)
+	// 				continue;
+	// 			pChar->TakeDamage(ForceDir * Dmg * 2, (int)Dmg, Owner, Weapon);
 				
-				if(GetCharacterByID(Owner) ? GetCharacterByID(Owner)->GrenadeHitDisabled() : !g_Config.m_SvHit || NoDamage)
-					break;
-			}
-	}
+	// 			if(GetCharacterByID(Owner) ? GetCharacterByID(Owner)->GrenadeHitDisabled() : !g_Config.m_SvHit || NoDamage)
+	// 				break;
+	// 		}
+	// }
 }
 
 bool CGameWorld::IsLocalTeam(int OwnerID) const

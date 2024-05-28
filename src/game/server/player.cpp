@@ -355,27 +355,27 @@ void CPlayer::Snap(int SnappingClient)
 	// char abuff[100];
 	// str_format(abuff, sizeof(abuff), "feetColor:%d", pClientInfo->m_ColorFeet);
 	// m_pGameServer->SendBroadcast(abuff, m_ClientID);
-	bool GrenadeOnScore = false;
-	bool LaserOnScore = false;
-	bool ShotGunOnScore = false;
+	// bool GrenadeOnScore = false;
+	// bool LaserOnScore = false;
+	// bool ShotGunOnScore = false;
 
-	if(GetCharacter()){
-			if ((Score >= 10) && (GrenadeOnScore != true) && GetCharacter() && !GetCharacter()->GrenadeOnScoreGave){
-				GrenadeOnScore = true;
-				GetCharacter()->GiveWeapon(3);
-				GetCharacter()->GrenadeOnScoreGave = true;
-			}
-			if ((Score >= 30) && (LaserOnScore != true) && GetCharacter() && !GetCharacter()->LaserOnScoreGave){
-				LaserOnScore = true;
-				GetCharacter()->GiveWeapon(4);
-				GetCharacter()->LaserOnScoreGave = true;
-			}
-			if ((Score >= 50) && (ShotGunOnScore != true) && GetCharacter() && !GetCharacter()->ShotGunOnScoreGave){
-				ShotGunOnScore = true;
-				GetCharacter()->GiveWeapon(2);
-				GetCharacter()->ShotGunOnScoreGave = true;
-		}
-	}
+	// if(GetCharacter()){
+	// 		if ((Score >= 10) && (GrenadeOnScore != true) && GetCharacter() && !GetCharacter()->GrenadeOnScoreGave){
+	// 			GrenadeOnScore = true;
+	// 			GetCharacter()->GiveWeapon(3);
+	// 			GetCharacter()->GrenadeOnScoreGave = true;
+	// 		}
+	// 		if ((Score >= 30) && (LaserOnScore != true) && GetCharacter() && !GetCharacter()->LaserOnScoreGave){
+	// 			LaserOnScore = true;
+	// 			GetCharacter()->GiveWeapon(4);
+	// 			GetCharacter()->LaserOnScoreGave = true;
+	// 		}
+	// 		if ((Score >= 50) && (ShotGunOnScore != true) && GetCharacter() && !GetCharacter()->ShotGunOnScoreGave){
+	// 			ShotGunOnScore = true;
+	// 			GetCharacter()->GiveWeapon(2);
+	// 			GetCharacter()->ShotGunOnScoreGave = true;
+	// 	}
+	// }
 
 	// send 0 if times of others are not shown
 	if(SnappingClient != m_ClientID && g_Config.m_SvHideScore)
